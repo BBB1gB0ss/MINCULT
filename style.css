@@ -10,15 +10,79 @@ h1{
     font-size: 3rem;
     color: #222;
 }
+body {
+    background-image: url('assets/img.jfif');
+    background-size: cover; /* Hace que la imagen cubra toda la pantalla */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que se repita */
+    background-attachment: fixed; /* Fija la imagen al hacer scroll */
+    min-height: 100vh; /* Asegura que cubra al menos toda la altura de la ventana */
+}
+label{
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #277a9b 0%, #c72d18 100%);
+    color: white;
+    border-radius: 5px;
+    margin: 5px;
+    justify-content: left;
+}
 .login{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-color: #f0f0f0;
+}
+.inputLogin input {
+    width: 200px; /* O el ancho que prefieras */
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+.inputLogin{
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.btnlogin{
+    display: flex;
+    gap: 10px;
+}
+.login button {
+    padding: 8px 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #c72d18;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    transition: 
+        background-color 0.3s,
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+.login button:hover {
+    background-color: #277a9b;
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
 }
 .formulario{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    position: absolute;
+}
+.mapcontainer{
     display: none;
     flex-direction: column;
     align-items: center;
