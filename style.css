@@ -10,6 +10,16 @@ h1{
     font-size: 3rem;
     color: #222;
 }
+.sig-rojo { color: #c72d18; }
+.sig-azul { color: #277a9b; }
+.gradiente-texto {
+  background: linear-gradient(90deg, #c72d18 0%, #277a9b 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+}
 body {
     background-image: url('assets/img.jfif');
     background-size: cover; /* Hace que la imagen cubra toda la pantalla */
@@ -22,7 +32,6 @@ label{
     display: flex;
     margin-bottom: 10px;
     font-size: 1.2rem;
-    background: linear-gradient(90deg, #277a9b 0%, #c72d18 100%);
     color: white;
     border-radius: 5px;
     margin: 5px;
@@ -58,7 +67,7 @@ label{
     padding: 8px 8px;
     font-size: 1rem;
     cursor: pointer;
-    background-color: #c72d18;
+    background-color: #b62f1d;
     color: white;
     border: none;
     border-radius: 5px;
@@ -74,13 +83,114 @@ label{
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
 }
-.formulario{
+/*--------FORMULARIO--------*/
+.formulario {
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     margin-top: 20px;
     position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.92);
+    border-radius: 15px;
+    box-shadow: 0 2px 16px #277a9b33;
+    padding: 30px 30px 20px 30px;
+    min-width: 340px;
+    max-width: 95vw;
+    z-index: 10;
+    width: 50%;
+}
+
+.formulario h2, .formulario h3 {
+    color: #c72d18;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 8px #277a9b33;
+}
+
+.formulario label {
+     background: linear-gradient(90deg, #c72d18 0%, #277a9b 50%, #277a9b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 4px 10px;
+    margin: 5px 0;
+    font-size: 1.1rem;
+}
+
+.formulario input[type="text"],
+.formulario input[type="email"],
+.formulario input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #277a9b;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #222;
+    transition: border-color 0.2s;
+}
+
+.formulario input[type="text"]:focus,
+.formulario input[type="email"]:focus,
+.formulario input[type="password"]:focus {
+    border-color: #c72d18;
+    outline: none;
+}
+
+.formulario input[type="reset"],
+.formulario input[type="submit"],
+.formulario .form-botones {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.form-botones,
+.formulario button {
+    padding: 8px 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #b62f1d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    transition: 
+        background-color 0.3s,
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+.formulario input[type="reset"]
+.formulario input[type="submit"]{
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #b62f1d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    transition: 
+        background-color 0.3s,
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+.formulario input[type="reset"]:hover,
+.formulario input[type="submit"]:hover,
+.formulario button:hover {
+    background-color: #277a9b;
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
 }
 .mapcontainer{
     display: none;
