@@ -12,14 +12,6 @@ h1{
 }
 .sig-rojo { color: #c72d18; }
 .sig-azul { color: #277a9b; }
-.gradiente-texto {
-  background: linear-gradient(90deg, #c72d18 0%, #277a9b 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  font-weight: bold;
-}
 body {
     background-image: url('assets/img.jfif');
     background-size: cover; /* Hace que la imagen cubra toda la pantalla */
@@ -32,7 +24,7 @@ label{
     display: flex;
     margin-bottom: 10px;
     font-size: 1.2rem;
-    color: white;
+    color: rgb(3, 3, 3);
     border-radius: 5px;
     margin: 5px;
     justify-content: left;
@@ -83,6 +75,21 @@ label{
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
 }
+.login input[type="text"],
+.login input[type="email"],
+.login input[type="password"]{
+     width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #277a9b;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #222;
+    transition: border-color 0.2s;
+}
+
 /*--------FORMULARIO--------*/
 .formulario {
     display: none;
@@ -101,7 +108,11 @@ label{
     min-width: 340px;
     max-width: 95vw;
     z-index: 10;
-    width: 50%;
+    width: 80%;
+}
+
+form{
+    width: 100%;
 }
 
 .formulario h2, .formulario h3 {
@@ -112,11 +123,8 @@ label{
 }
 
 .formulario label {
-     background: linear-gradient(90deg, #c72d18 0%, #277a9b 50%, #277a9b 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
-    color: transparent;
+    color: rgb(3, 3, 3);
     font-weight: bold;
     border-radius: 5px;
     padding: 4px 10px;
@@ -138,7 +146,9 @@ label{
     color: #222;
     transition: border-color 0.2s;
 }
-
+.login input[type="text"]:focus,
+.login input[type="email"]:focus,
+.login input[type="password"]:focus,
 .formulario input[type="text"]:focus,
 .formulario input[type="email"]:focus,
 .formulario input[type="password"]:focus {
@@ -146,29 +156,35 @@ label{
     outline: none;
 }
 
-.formulario input[type="reset"],
-.formulario input[type="submit"],
+/*.formulario input[type="reset"]
+.formulario input[type="submit"]*/
 .formulario .form-botones {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
+    gap: 10px;
     margin-top: 10px;
 }
+.form-botones-izq {
+    display: flex;
+    gap: 10px;
+}
 
-.form-botones,
+.formulario input[type="reset"],
+.formulario input[type="submit"],
 .formulario button {
-    padding: 8px 8px;
+    padding: 8px 16px;
     font-size: 1rem;
     cursor: pointer;
     background-color: #b62f1d;
-    color: white;
+    color: #fff;
     border: none;
     border-radius: 5px;
-    margin: 5px;
-    transition: 
-        background-color 0.3s,
-        transform 0.2s,
-        box-shadow 0.2s;
+    margin: 0;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    font-weight: bold;
+    box-shadow: 0 2px 8px #277a9b22;
 }
 .formulario input[type="reset"]
 .formulario input[type="submit"]{
