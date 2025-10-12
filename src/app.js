@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Cambia si tu frontend corre en otro puerto
+    origin: "*", // Cambia si tu frontend corre en otro puerto
     credentials: true,
   })
 );
