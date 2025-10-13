@@ -11,10 +11,26 @@ const User = {
     const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
     return result.rows[0];
   },
-  async create({ name, email, password, role = "usuario" }) {
+  async create({
+    name,
+    apellido1,
+    apellido2,
+    username,
+    email,
+    password,
+    role = "usuario",
+  }) {
     const result = await pool.query(
-      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
-      [name, email, password, role]
+      "INSERT INTO users (name, apellido1, apellido2, username, email, password, role) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [name, apellido1, apellido2, username, email, password, role]
+    );
+    return result.rows[0];
+  },
+
+  async findByUsername(username) {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE LOWER(username) = LOWER($1)",
+      [username]
     );
     return result.rows[0];
   },

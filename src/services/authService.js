@@ -8,8 +8,8 @@ const AuthService = {
     const hashedPassword = await bcrypt.hash(password, 10);
     return User.create({ name, email, password: hashedPassword, role });
   },
-  async login({ email, password }) {
-    const user = await User.findByEmail(email);
+  async login({ username, password }) {
+    const user = await User.findByUsername(username);
     if (!user) return null;
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return null;

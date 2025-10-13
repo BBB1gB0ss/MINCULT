@@ -1,34 +1,3 @@
-// LOGIN
-document
-  .getElementById("IniciarSesion")
-  .addEventListener("click", async (e) => {
-    e.preventDefault();
-    const username = document.getElementById("login-username").value;
-    const password = document.getElementById("login-password").value;
-    const mensaje =
-      document.getElementById("mensaje-login") || crearMensaje("login");
-
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        mensaje.textContent = "¡Login exitoso!";
-        localStorage.setItem("token", data.token);
-        // Aquí puedes mostrar el mapa o redirigir
-        document.getElementById("login").style.display = "none";
-        document.getElementById("mapcontainer").style.display = "block";
-      } else {
-        mensaje.textContent = data.message || "Error en login";
-      }
-    } catch (err) {
-      mensaje.textContent = "Error de conexión con el backend";
-    }
-  });
-
 // REGISTRO
 document
   .querySelector("#formulario form")
@@ -48,7 +17,7 @@ document
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre,
+          name,
           apellido1,
           apellido2,
           username,
