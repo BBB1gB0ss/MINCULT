@@ -27,8 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Validación básica
     if (!name || !apellido1 || !username || !email || !password) {
-      mensaje.textContent =
-        "Por favor, completa todos los campos obligatorios.";
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Por favor, completa todos los campos obligatorios.",
+      });
       return;
     }
 
@@ -47,7 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await response.json();
       if (response.ok) {
-        mensaje.textContent = "¡Registro exitoso! Ahora puedes iniciar sesión.";
+        Swal.fire({
+          icon: "success",
+          title: "¡Registro exitoso! Ahora puedes iniciar sesión.",
+          showConfirmButton: false,
+          timer: 1500,
+        });
         formulario.style.display = "none";
         login.style.display = "flex";
       } else {

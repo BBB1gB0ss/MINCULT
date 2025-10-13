@@ -1,3 +1,5 @@
+/*import Swal from "sweetalert2";*/
+
 document.addEventListener("DOMContentLoaded", () => {
   const btnCrear = document.getElementById("CrearCuenta");
   const btnLogin = document.getElementById("IniciarSesion");
@@ -19,7 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
     username = username.toLowerCase();
 
     if (!username || !password) {
-      mensaje.textContent = "Por favor, completa ambos campos.";
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Por favor, completa ambos campos.",
+        footer: '<a href="#">¿Por qué tengo este problema?</a>',
+      });
       return;
     }
 
@@ -31,16 +38,30 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await response.json();
       if (response.ok) {
-        mensaje.textContent = "¡Inicio de sesión exitoso!";
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "¡Inicio de sesión exitoso!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
         login.style.display = "none";
         mapcontainer.style.display = "block";
         localStorage.setItem("token", data.token);
       } else {
-        mensaje.textContent =
-          data.message || "Usuario o contraseña incorrectos.";
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: data.message || "Usuario o contraseña incorrectos.",
+        });
       }
     } catch (err) {
-      mensaje.textContent = "Error de conexión con el servidor.";
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Error de conexión con el servidor.",
+        footer: '<a href="#">Verificar conexión</a>',
+      });
     }
   });
 
