@@ -52,6 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok) {
         Swal.fire({
           icon: "success",
+          iconColor: "#277a9b",
+          position: "top-end",
+          width: 300,
+          heightAuto: false,
+          toast: true,
           title: "¡Registro exitoso! Ahora puedes iniciar sesión.",
           showConfirmButton: false,
           timer: 1500,

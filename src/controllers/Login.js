@@ -39,7 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       if (response.ok) {
         Swal.fire({
+          toast: true,
           position: "top-end",
+          iconColor: "#277a9b",
+          width: 300,
+          heightAuto: false,
           icon: "success",
           title: "¡Inicio de sesión exitoso!",
           showConfirmButton: false,
