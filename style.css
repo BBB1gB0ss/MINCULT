@@ -13,7 +13,7 @@ h1{
 .sig-rojo { color: #c72d18; }
 .sig-azul { color: #277a9b; }
 body {
-    background-image: url('assets/img.jfif');
+    background-image: url('');
     background-size: cover; /* Hace que la imagen cubra toda la pantalla */
     background-position: center; /* Centra la imagen */
     background-repeat: no-repeat; /* Evita que se repita */
@@ -37,7 +37,7 @@ label{
     height: 100vh;
 }
 .inputLogin input {
-    width: 200px; /* O el ancho que prefieras */
+    width: 200px;
     padding: 8px;
     font-size: 1rem;
     border-radius: 5px;
@@ -208,11 +208,193 @@ form{
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
 }
-.mapcontainer{
+/*--------MAPA--------*/
+.mapcontainer {
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    margin-top: 20px;
+    justify-content: flex-start;
     position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    z-index: 5;
+}
+
+.mapcontainer h2 {
+    color: #c72d18;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 2rem;
+    text-shadow: 1px 1px 8px #277a9b33;
+}
+
+#map {
+    position: relative;
+    width: 100%;
+    height: 80%;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    box-shadow: 0 2px 16px #277a9b33;
+    overflow: hidden;
+    border: 1px solid #277a9b;
+}
+
+/* Botones de zoom */
+#zoom{
+    display: flex;
+    position: absolute;
+    top: 26.5rem;
+    left: 76.5rem;
+}
+#map #zoom button {
+    right: 15px;
+    padding: 10px 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    background-color: #b62f1d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    transition: 
+        background-color 0.3s,
+        transform 0.2s,
+        box-shadow 0.2s;
+    z-index: 10;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    height: 35px;
+}
+
+#map button:first-of-type {
+   
+}
+
+#map button:nth-of-type(2) {
+
+}
+
+#map button:hover {
+    background-color: #277a9b;
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(39, 122, 155, 0.3);
+}
+
+/* Botón de filtros */
+#filtros-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #b62f1d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: 
+        background-color 0.3s,
+        transform 0.2s,
+        box-shadow 0.2s;
+    z-index: 10;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    height: 35px;
+}
+
+#filtros-toggle:hover {
+    background-color: #277a9b;
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(39, 122, 155, 0.3);
+}
+
+/* Panel de filtros */
+#filtros {
+    position: absolute;
+    top: 60px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 2px 16px #277a9b33;
+    padding: 15px;
+    min-width: 200px;
+    z-index: 10;
+    border: 1px solid #277a9b;
+    display: none;
+}
+
+#filtros h3 {
+    color: #c72d18;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 8px #277a9b33;
+}
+
+#filtros label {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #222;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+#filtros input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+    accent-color: #b62f1d;
+}
+
+#filtros input[type="search"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #277a9b;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #222;
+    transition: border-color 0.2s;
+}
+
+#filtros input[type="search"]:focus {
+    border-color: #c72d18;
+    outline: none;
+}
+
+#btnSearch {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #b62f1d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: 
+        background-color 0.3s,
+        transform 0.2s,
+        box-shadow 0.2s;
+    font-weight: bold;
+    box-shadow: 0 2px 8px #277a9b22;
+}
+
+#btnSearch:hover {
+    background-color: #277a9b;
+    color: #fff;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
+}
+
+/* Mostrar filtros cuando están activos */
+#filtros.active {
+    display: block;
 }

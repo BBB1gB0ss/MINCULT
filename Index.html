@@ -52,16 +52,37 @@
 
         </div>
         <div id="mapcontainer" class="mapcontainer">
-            <h2>Mapa</h2>
-            <p>Aquí va el mapa</p>
+            <h2>Mapa de Instituciones Culturales</h2>
             <div id="map">
-                <button>+</button>
-                <button>-</button>
+                <!-- Botón para mostrar/ocultar filtros -->
+                <button id="filtros-toggle">Filtros</button>
+
+                <!-- Botones de zoom -->
+                <div id="zoom">
+                    <button id="zoom-in">+</button>
+                    <button id="zoom-out">-</button>
+                </div>
+
+
+                <!-- Panel de filtros -->
                 <div id="filtros">
                     <h3>Filtros</h3>
-                    <label for="search">Buscar</label>
-                    <input type="search" name="Insituciones" id="search" placeholder="Buscar...">
-                    <button id="btnSearch">Buscar</button>
+                    <h4>Tipo de Institución</h4>
+                    <label>
+                        <input type="checkbox" name="tipo-institucion" value="museos"> Museos
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tipo-institucion" value="galerias"> Galerías
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tipo-institucion" value="teatros"> Teatros
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tipo-institucion" value="bibliotecas"> Bibliotecas
+                    </label>
+                    <label>
+                        <input type="checkbox" name="tipo-institucion" value="casas-cultura"> Casas de Cultura
+                    </label>
                 </div>
             </div>
         </div>
@@ -70,6 +91,13 @@
     <script src="src/controllers/Login.js"></script>
     <script src="src/controllers/Formulario.js"></script>
     <script src="src/controllers/api.js"></script>
+    <script>
+        // Script para mostrar/ocultar filtros
+        document.getElementById('filtros-toggle').addEventListener('click', function () {
+            const filtros = document.getElementById('filtros');
+            filtros.classList.toggle('active');
+        });
+    </script>
 </body>
 
 </html>
