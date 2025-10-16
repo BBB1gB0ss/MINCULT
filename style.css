@@ -327,6 +327,7 @@ form{
     z-index: 10;
     border: 1px solid #277a9b;
     display: none;
+    height: 21rem;
 }
 
 #filtros h3 {
@@ -351,28 +352,17 @@ form{
     transform: scale(1.2);
     accent-color: #b62f1d;
 }
-
-#filtros input[type="search"] {
-    width: 100%;
-    padding: 8px;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: 1px solid #277a9b;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    background: #fff;
-    color: #222;
-    transition: border-color 0.2s;
+/* Mostrar filtros cuando están activos */
+#filtros.active {
+    display: block;
 }
-
-#filtros input[type="search"]:focus {
-    border-color: #c72d18;
-    outline: none;
-}
-
-#btnSearch {
-    width: 100%;
-    padding: 8px;
+/*Boton de Update*/
+#updateBtn{
+    display: none;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 10px 15px;
     font-size: 1rem;
     cursor: pointer;
     background-color: #b62f1d;
@@ -383,18 +373,8 @@ form{
         background-color 0.3s,
         transform 0.2s,
         box-shadow 0.2s;
+    z-index: 10;
     font-weight: bold;
-    box-shadow: 0 2px 8px #277a9b22;
-}
-
-#btnSearch:hover {
-    background-color: #277a9b;
-    color: #fff;
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(39, 122, 155, 0.2);
-}
-
-/* Mostrar filtros cuando están activos */
-#filtros.active {
-    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    height: 35px;
 }
