@@ -34,7 +34,7 @@ exports.register = async (req, res) => {
       apellido2: user.apellido2,
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: user.role, // ✅ Asegura que se devuelve el rol
     });
   } catch (err) {
     console.error("Error al registrar usuario:", err);
@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
         name: user.name,
         username: user.username,
         email: user.email,
-        role: user.role,
+        role: user.role, // ✅ Asegura que se devuelve el rol en el login
       },
     });
   } catch (err) {
@@ -94,6 +94,7 @@ exports.delete = async (req, res) => {
     res.status(500).json({ message: "Error al eliminar usuario." });
   }
 };
+
 exports.getById = async (req, res) => {
   try {
     const user = await User.getById(req.params.id);
@@ -104,6 +105,7 @@ exports.getById = async (req, res) => {
     res.status(500).json({ message: "Error al obtener usuario." });
   }
 };
+
 exports.update = async (req, res) => {
   try {
     const user = await UserService.updateUser(req.params.id, req.body);

@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const formulario = document.getElementById("formulario");
   const login = document.getElementById("login");
   const mapcontainer = document.getElementById("mapcontainer");
+  const updateBtn = document.getElementById("updateBtn"); // ✅ Añadido: referencia al botón update
   const mensaje = document.getElementById("mensaje-login") || crearMensaje();
 
   btnCrear.addEventListener("click", () => {
@@ -49,9 +50,16 @@ document.addEventListener("DOMContentLoaded", () => {
           showConfirmButton: false,
           timer: 1500,
         });
+
+        // Ocultar login y mostrar mapa
         login.style.display = "none";
         mapcontainer.style.display = "block";
+
+        // Guardar token en localStorage
         localStorage.setItem("token", data.token);
+
+        // ✅ CORREGIDO: Verificar si el usuario es admin y mostrar el botón correspondiente
+        verificarRolUsuario(data.user);
       } else {
         Swal.fire({
           icon: "error",
@@ -68,6 +76,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+
+  // ✅ CORREGIDO: Función para verificar el rol del usuario
+  function verificarRolUsuario(userData) {
+    if (!userData) {
+      console.warn("No se recibió información del usuario");
+      return;
+    }
+
+    // Dependiendo de cómo esté estructurada la respuesta del servidor
+    const userRole = userData.role || userData.rol || userData.tipo;
+
+    console.log("Rol del usuario:", userRole); // Para debugging
+
+    // ✅ CORREGIDO: Mostrar botón si es admin
+    if (userRole === "admin" || userRole === "administrador") {
+      if (updateBtn) {
+        updateBtn.style.display = "block";
+        console.log("Botón de admin mostrado"); // Para debugging
+      }
+    } else {
+      // Ocultar botón si no es admin
+      if (updateBtn) {
+        updateBtn.style.display = "none";
+      }
+    }
+  }
 
   function crearMensaje() {
     const div = document.createElement("div");
