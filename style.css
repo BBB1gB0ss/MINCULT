@@ -270,14 +270,6 @@ form{
     height: 35px;
 }
 
-#map button:first-of-type {
-   
-}
-
-#map button:nth-of-type(2) {
-
-}
-
 #map button:hover {
     background-color: #277a9b;
     color: #fff;
@@ -383,4 +375,56 @@ form{
     color: #fff;
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(39, 122, 155, 0.3);
+}
+/* ----- INFO UPDATE SECTION ----- */
+.InfoUpdate{
+    display: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 90%;
+    box-shadow: 0 4px 20px rgba(39, 122, 155, 0.15);
+    border: 1px solid rgba(199, 45, 24, 0.1);
+    position: relative;
+    overflow: hidden;;
+}
+
+#headerUpdate {
+    width: 100%;
+    text-align: center;
+}
+
+#headerUpdate h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 15px 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+@media (max-width: 768px) {
+    .InfoUpdate {
+        margin: 15px 10px;
+        max-width: 95%;
+        padding: 15px 20px;
+    }
+    
+    #headerUpdate h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .InfoUpdate {
+        padding: 12px 15px;
+        margin: 10px 5px;
+    }
+    
+    #headerUpdate h3 {
+        font-size: 1.1rem;
+        padding: 8px;
+    }
 }

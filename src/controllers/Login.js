@@ -39,6 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await response.json();
       if (response.ok) {
+        // Almacenar información del usuario en localStorage
+        localStorage.setItem("usuarioLogueado", JSON.stringify(data.user));
+
         Swal.fire({
           toast: true,
           position: "top-end",
@@ -54,6 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Ocultar login y mostrar mapa
         login.style.display = "none";
         mapcontainer.style.display = "block";
+
+        // Mostrar la institución del admin
+        const institucion = data.user.institucion || "Sistema";
+        mostrarInstitucionAdmin(institucion);
 
         // Guardar token en localStorage
         localStorage.setItem("token", data.token);
@@ -72,10 +79,24 @@ document.addEventListener("DOMContentLoaded", () => {
         icon: "error",
         title: "Oops...",
         text: "Error de conexión con el servidor.",
-        footer: '<a href="#">Verificar conexión</a>',
       });
     }
   });
+
+  // Función para mostrar la institución del administrador
+  function mostrarInstitucionAdmin(nombreInstitucion) {
+    const headerUpdate = document.getElementById("headerUpdate");
+
+    if (headerUpdate && nombreInstitucion) {
+      headerUpdate.innerHTML = `
+        <h3>Administrador de: ${nombreInstitucion}</h3>
+      `;
+    } else if (headerUpdate) {
+      headerUpdate.innerHTML = `
+        <h3>Usuario del Sistema</h3>
+      `;
+    }
+  }
 
   // ✅ CORREGIDO: Función para verificar el rol del usuario
   function verificarRolUsuario(userData) {

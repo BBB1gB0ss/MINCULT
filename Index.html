@@ -107,8 +107,9 @@
             </div>
         </div>
 
-        <div id="InfoUpdate">
-            <h3>Info</h3>
+        <div id="InfoUpdate" class="InfoUpdate">
+            <div id="headerUpdate">
+            </div>
         </div>
     </div>
 
@@ -119,8 +120,14 @@
     <script>
         // Script para mostrar/ocultar filtros
         document.getElementById('filtros-toggle').addEventListener('click', function () {
+            /*const usuarioLogueado = JSON.parse(localStorage.getItem('usuarioLogueado'));*/
             const filtros = document.getElementById('filtros');
+
             filtros.classList.toggle('active');
+
+            /* if (usuarioLogueado && usuarioLogueado.institucion) {
+                  mostrarInstitucionAdmin(usuarioLogueado.institucion);
+              }*/
         });
     </script>
 </body>

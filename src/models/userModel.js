@@ -19,10 +19,11 @@ const User = {
     email,
     password,
     role = "usuario",
+    institucion = null,
   }) {
     const result = await pool.query(
-      "INSERT INTO users (name, apellido1, apellido2, username, email, password, role) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [name, apellido1, apellido2, username, email, password, role]
+      "INSERT INTO users (name, apellido1, apellido2, username, email, password, role, institucion) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      [name, apellido1, apellido2, username, email, password, role, institucion]
     );
     return result.rows[0];
   },

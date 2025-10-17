@@ -5,8 +5,16 @@ const UserService = require("../services/userService");
 
 exports.register = async (req, res) => {
   try {
-    const { name, apellido1, apellido2, username, email, password, role } =
-      req.body;
+    const {
+      name,
+      apellido1,
+      apellido2,
+      username,
+      email,
+      password,
+      role,
+      institucion,
+    } = req.body;
     const existingUser = await User.findByEmail(email);
     if (existingUser)
       return res.status(400).json({ message: "El correo ya está registrado." });
@@ -26,6 +34,7 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      institucion,
     });
     res.status(201).json({
       id: user.id,
@@ -34,7 +43,8 @@ exports.register = async (req, res) => {
       apellido2: user.apellido2,
       username: user.username,
       email: user.email,
-      role: user.role, // ✅ Asegura que se devuelve el rol
+      role: user.role,
+      institucion: user.institucion,
     });
   } catch (err) {
     console.error("Error al registrar usuario:", err);
@@ -65,7 +75,8 @@ exports.login = async (req, res) => {
         name: user.name,
         username: user.username,
         email: user.email,
-        role: user.role, // ✅ Asegura que se devuelve el rol en el login
+        role: user.role,
+        institucion: user.institucion || null,
       },
     });
   } catch (err) {
