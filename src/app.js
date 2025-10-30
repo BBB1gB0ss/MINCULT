@@ -6,6 +6,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const institucionesRoutes = require("./routes/institucionesRoutes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 //rutas API
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api", institucionesRoutes);
 
 app.use(errorHandler);
 

@@ -46,3 +46,28 @@ function crearMensaje(parentId) {
   document.getElementById(parentId).appendChild(div);
   return div;
 }
+
+app.get("/api/instituciones", async (req, res) => {
+  try {
+    const result = await pool.query(`
+            SELECT 
+                id,
+                nombre,
+                tipo_institucion,
+                direccion,
+                telefono,
+                email,
+                sitio_web,
+                latitud,
+                longitud
+            FROM instituciones 
+            WHERE latitud IS NOT NULL 
+            AND longitud IS NOT NULL
+        `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener instituciones:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});

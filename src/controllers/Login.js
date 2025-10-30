@@ -56,7 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Ocultar login y mostrar mapa
         login.style.display = "none";
-        mapcontainer.style.display = "block";
+        mapcontainer.style.display = "flex";
+        mapa.invalidateSize();
 
         // Mostrar la institución del admin
         const institucion = data.user.institucion || "Sistema";
