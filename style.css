@@ -313,6 +313,7 @@ form{
 
 /* Panel de filtros */
 #filtros {
+    overflow: hidden;
     position: absolute;
     top: 60px;
     right: 15px;
@@ -324,7 +325,7 @@ form{
     z-index: 10;
     border: 1px solid #277a9b;
     display: none;
-    height: 21rem;
+    height: 33rem;
     z-index: 1000;
 }
 
@@ -341,7 +342,7 @@ form{
     align-items: center;
     font-size: 1rem;
     color: #222;
-    margin: 8px 0;
+    margin: 4px 0;
     cursor: pointer;
 }
 
@@ -353,6 +354,138 @@ form{
 /* Mostrar filtros cuando están activos */
 #filtros.active {
     display: block;
+}
+/* =========================================== */
+/* MEJORAS VISUALES: GRUPO ACORDEÓN / ESTILOS GENERALES */
+/* (Asegúrate de que este bloque esté en tu CSS) */
+/* =========================================== */
+
+/* Contenedor de la lista de checkboxes */
+#lista-filtros {
+    display: flex;
+    flex-direction: column; 
+    gap: 0px; 
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Estilo para cada Grupo de filtro (el CNCC completo) */
+.filtro-grupo {
+    border-bottom: 1px solid #eee;
+}
+.filtro-grupo:last-child {
+    border-bottom: none; 
+}
+
+/* Encabezado del Grupo (CNCC, CNAE, etc. y también se usa para ICM, ARTEX individuales) */
+.grupo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+    padding: 10px 12px;
+    background-color: #f0f8ff; /* Fondo más claro para el header/individual */
+    cursor: pointer;
+    font-size: 1rem;
+    color: #277a9b; 
+    font-weight: bold;
+    border-radius: 0; 
+    transition: background-color 0.2s;
+    /* Estilos para los filtros individuales (como ARTEX, que también usan .grupo-header) */
+    background-color: #f8f8f8 !important; /* Más neutro para los individuales */
+    color: #333 !important;
+}
+
+.grupo-header:hover {
+    background-color: #e3f2fd !important;
+}
+
+/* El header de los desplegables debe tener un color diferente para distinguirlos */
+.filtro-grupo > .grupo-header {
+    background-color: #e6f7ff !important; /* Un poco más azul para los desplegables */
+    color: #277a9b !important;
+}
+.filtro-grupo > .grupo-header:hover {
+     background-color: #d3efff !important;
+}
+
+
+/* Ocultar el checkbox principal que solo sirve para alternar el acordeón */
+.grupo-header .filtro-principal {
+    display: none !important; 
+}
+
+/* Quita el icono de despliegue de los filtros individuales */
+.grupo-header:not(.filtro-grupo > .grupo-header) .toggle-icon {
+    display: none;
+}
+
+.grupo-header .toggle-icon {
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+    margin-left: 10px;
+    color: #c72d18;
+    flex-shrink: 0; /* Asegura que no se mueva */
+}
+
+/* Contenedor de Subfiltros (oculto por defecto) */
+.subfiltros {
+    display: none; /* Oculto por defecto */
+    padding: 5px 0 5px 0;
+    background-color: #ffffff;
+}
+
+/* Mostrar Subfiltros cuando el grupo-header esté "activo" */
+.subfiltros.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilo de cada Subfiltro individual */
+.subfiltros label {
+    padding: 6px 12px 6px 30px; /* Indentación */
+    background-color: transparent;
+    font-weight: normal;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.subfiltros label:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilo de los checkbox (mantenido) */
+.grupo-header input[type="checkbox"],
+.subfiltros input[type="checkbox"] {
+    margin-right: 10px;
+    appearance: none; 
+    width: 14px;
+    height: 14px;
+    border: 2px solid #c72d18; 
+    border-radius: 3px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.grupo-header input[type="checkbox"]:checked,
+.subfiltros input[type="checkbox"]:checked {
+    background-color: #277a9b;
+    border-color: #277a9b;
+}
+
+.grupo-header input[type="checkbox"]:checked::after,
+.subfiltros input[type="checkbox"]:checked::after {
+    content: '✓'; 
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 /*Boton de Update*/
 

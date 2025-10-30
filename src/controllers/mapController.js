@@ -9,39 +9,113 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 var marcadores = L.layerGroup().addTo(mapa);
 
 /**
- * Función para cargar la lista de consejos únicos y generar los filtros.
+ * Función para cargar la lista de consejos, agrupando según las reglas específicas.
  */
 async function cargarConsejos() {
-  try {
-    const response = await fetch("http://localhost:3000/api/consejos");
-    if (!response.ok) {
-      throw new Error("No se pudo obtener la lista de consejos.");
-    }
-    const consejos = await response.json();
+  const listaFiltrosContainer = document.getElementById("lista-filtros");
+  if (!listaFiltrosContainer) return;
 
-    const listaFiltrosContainer = document.getElementById("lista-filtros");
-    if (!listaFiltrosContainer) return;
+  listaFiltrosContainer.innerHTML = ""; // Limpiar filtros existentes
 
-    listaFiltrosContainer.innerHTML = ""; // Limpiar filtros existentes
+  // 🎯 DEFINICIÓN MAESTRA DE FILTROS Y AGRUPACIONES (SEGÚN TU ESPECIFICACIÓN)
+  const gruposDefinidos = {
+    // Grupos que son desplegables (Acordeón)
+    desplegables: {
+      CNCC: [
+        "CNCC Jovenes",
+        "CNCC Niños",
+        "CNCC Adultos",
+        "CNCC Adultos Mayor",
+        "CNCC Adolescentes",
+      ],
+      BNJM: ["BNJM", "BNJM Municp-Sucursal", "BNJM Provincial"],
+      CNAE: ["CNAE Municipal", "CNAE Provincial"],
+      CNAP: ["CNAP", "CNAP Galerias Arte Provincial"],
+      CNPC: [
+        "Monumentos",
+        "Museos Nacionales y Provinciales",
+        "Sitios Nacionales",
+      ],
+      ICAIC: ["Cine ICAIC", "Sala de Videos ICAIC"],
+    },
+    // Filtros que son individuales (Checkboxes directos)
+    individuales: ["ICM", "ICL", "ARTEX", "EGREM"],
+  };
 
-    // Generar un checkbox por cada consejo obtenido de la BD
-    consejos.forEach((consejo) => {
-      const label = document.createElement("label");
-      label.innerHTML = `
+  // 1. Generar la estructura de Acordeón para Grupos Desplegables
+  Object.keys(gruposDefinidos.desplegables)
+    .sort()
+    .forEach((grupoMaestro) => {
+      const subfiltros = gruposDefinidos.desplegables[grupoMaestro];
+
+      const grupoContainer = document.createElement("div");
+      grupoContainer.classList.add("filtro-grupo");
+
+      // --- Header/Toggle del Grupo ---
+      const headerLabel = document.createElement("label");
+      headerLabel.classList.add("grupo-header");
+      // Usamos un input para que el label capture el clic y el CSS controle el toggle
+      headerLabel.innerHTML = `
+            <input type="checkbox" class="filtro-principal" value="${grupoMaestro}">
+            <span class="prefijo-nombre">${grupoMaestro}</span>
+            <span class="toggle-icon">▼</span>
+        `;
+      // Listener para alternar la visibilidad de los subfiltros
+      headerLabel
+        .querySelector(".filtro-principal")
+        .addEventListener("change", (e) => {
+          // Detiene la propagación del evento para evitar que el cambio de estado
+          // del checkbox maestro active cargarInstituciones si no queremos que lo haga.
+          e.stopPropagation();
+
+          const subfiltrosDiv = e.target
+            .closest(".filtro-grupo")
+            .querySelector(".subfiltros");
+          subfiltrosDiv.classList.toggle("active");
+          e.target
+            .closest(".filtro-grupo")
+            .querySelector(".toggle-icon").textContent =
+            subfiltrosDiv.classList.contains("active") ? "▲" : "▼";
+        });
+      grupoContainer.appendChild(headerLabel);
+
+      // --- Contenedor de Subfiltros ---
+      const subfiltrosDiv = document.createElement("div");
+      subfiltrosDiv.classList.add("subfiltros");
+
+      subfiltros.sort().forEach((consejo) => {
+        const label = document.createElement("label");
+        label.innerHTML = `
                 <input type="checkbox" name="tipo-institucion" value="${consejo}"> ${consejo}
             `;
-      listaFiltrosContainer.appendChild(label);
+        // Listener para el cambio de un filtro específico
+        label
+          .querySelector("input")
+          .addEventListener("change", manejarCambioFiltros);
+        subfiltrosDiv.appendChild(label);
+      });
+
+      grupoContainer.appendChild(subfiltrosDiv);
+      listaFiltrosContainer.appendChild(grupoContainer);
     });
 
-    // Re-adjuntar listeners a los nuevos checkboxes
-    document
-      .querySelectorAll('input[name="tipo-institucion"]')
-      .forEach((checkbox) => {
-        checkbox.addEventListener("change", manejarCambioFiltros);
-      });
-  } catch (error) {
-    console.error("Error al cargar los consejos para filtros:", error);
-  }
+  // 2. Generar Filtros Individuales
+  gruposDefinidos.individuales.sort().forEach((consejo) => {
+    const label = document.createElement("label");
+    // Para que se vean igual que los encabezados de grupo, usamos la clase 'grupo-header'
+    label.classList.add("grupo-header");
+    label.style.backgroundColor = "#f8f8f8"; // Color de fondo más claro
+    label.style.color = "#333";
+    label.innerHTML = `
+            <input type="checkbox" name="tipo-institucion" value="${consejo}"> 
+            <span class="prefijo-nombre">${consejo}</span>
+        `;
+    // Los filtros individuales también deben llamar a manejarCambioFiltros
+    label
+      .querySelector("input")
+      .addEventListener("change", manejarCambioFiltros);
+    listaFiltrosContainer.appendChild(label);
+  });
 }
 
 /**
@@ -49,9 +123,7 @@ async function cargarConsejos() {
  * @param {string[]} filtrosSeleccionados - Array de valores de consejo a filtrar.
  */
 async function cargarInstituciones(filtrosSeleccionados = []) {
-  // 🎯 CAMBIO 1: Si el arreglo de filtros está vacío, limpiamos el mapa y salimos.
-  // Esto cumple con el requisito de no mostrar nada al inicio y de limpiar el mapa
-  // si el usuario desmarca todos los filtros.
+  // Si el arreglo de filtros está vacío, limpiamos el mapa y salimos.
   if (filtrosSeleccionados.length === 0) {
     marcadores.clearLayers();
     console.log("No se cargan instituciones. Esperando selección de filtros.");
@@ -59,10 +131,8 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
   }
 
   try {
-    // 1. Construir la URL con parámetros de consulta
     let url = "http://localhost:3000/api/instituciones";
-
-    // Si hay filtros seleccionados (length > 0), se añaden a la URL
+    // Enviamos solo los filtros específicos a la API.
     const queryParams = filtrosSeleccionados.join(",");
     url = `${url}?tipo=${queryParams}`;
 
@@ -75,10 +145,8 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
 
     const instituciones = await response.json();
 
-    // Limpiar marcadores existentes
     marcadores.clearLayers();
 
-    // Agregar nuevos marcadores
     instituciones.forEach((institucion) => {
       if (institucion.latitud && institucion.longitud) {
         const marcador = L.marker([institucion.latitud, institucion.longitud])
@@ -97,7 +165,7 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
       }
     });
 
-    // LÓGICA DE ZOOM CORREGIDA
+    // LÓGICA DE ZOOM
     const layers = marcadores.getLayers();
 
     if (layers.length > 0) {
@@ -120,14 +188,13 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
   }
 }
 
-// Función que lee los checkboxes y llama a la API con los filtros.
+// Función que lee SOLO los checkboxes específicos (name="tipo-institucion")
 function manejarCambioFiltros() {
   const tiposSeleccionados = Array.from(
     document.querySelectorAll('input[name="tipo-institucion"]:checked')
   ).map((checkbox) => checkbox.value);
 
-  // Llama a la API con los filtros seleccionados. Si el arreglo está vacío,
-  // cargarInstituciones() limpiará el mapa y saldrá.
+  // Llama a la API con los filtros seleccionados.
   cargarInstituciones(tiposSeleccionados);
 }
 
@@ -151,18 +218,14 @@ document.addEventListener("DOMContentLoaded", () => {
     mapcontainer.style.display = "none";
   });
 
-  // Cargar instituciones cuando el mapa esté visible
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === "style") {
         if (mapcontainer.style.display !== "none") {
           mapa.invalidateSize();
 
-          // 2. Cargar la lista de consejos (filtros). Esto debe suceder.
+          // Cargar la lista de consejos y generar los acordeones
           cargarConsejos();
-
-          // 🎯 CAMBIO 2: SE ELIMINA LA LLAMADA INICIAL A cargarInstituciones([]).
-          // El mapa ahora se iniciará en blanco.
 
           observer.disconnect();
         }
