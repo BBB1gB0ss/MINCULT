@@ -71,7 +71,7 @@
 
 
                 <!-- Panel de filtros -->
-                <<div class="filtros" id="filtros">
+                <div class="filtros" id="filtros">
                     <h3>Filtros por Consejo</h3>
 
                     <div id="lista-filtros" class="lista-filtros">
@@ -82,32 +82,32 @@
                             Actualizar Informacion de Instituciones
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <div id="InfoUpdate" class="InfoUpdate">
+                <div id="headerUpdate">
+                </div>
             </div>
         </div>
 
-        <div id="InfoUpdate" class="InfoUpdate">
-            <div id="headerUpdate">
-            </div>
-        </div>
-    </div>
+        <script src="src/controllers/Login.js"></script>
+        <script src="src/controllers/Formulario.js"></script>
+        <script src="src/controllers/api.js"></script>
+        <script src="src/controllers/mapController.js"></script>
+        <script>
+            // Script para mostrar/ocultar filtros
+            document.getElementById('filtros-toggle').addEventListener('click', function () {
+                /*const usuarioLogueado = JSON.parse(localStorage.getItem('usuarioLogueado'));*/
+                const filtros = document.getElementById('filtros');
 
-    <script src="src/controllers/Login.js"></script>
-    <script src="src/controllers/Formulario.js"></script>
-    <script src="src/controllers/api.js"></script>
-    <script src="src/controllers/mapController.js"></script>
-    <script>
-        // Script para mostrar/ocultar filtros
-        document.getElementById('filtros-toggle').addEventListener('click', function () {
-            /*const usuarioLogueado = JSON.parse(localStorage.getItem('usuarioLogueado'));*/
-            const filtros = document.getElementById('filtros');
+                filtros.classList.toggle('active');
 
-            filtros.classList.toggle('active');
-
-            /* if (usuarioLogueado && usuarioLogueado.institucion) {
-                  mostrarInstitucionAdmin(usuarioLogueado.institucion);
-              }*/
-        });
-    </script>
+                /* if (usuarioLogueado && usuarioLogueado.institucion) {
+                      mostrarInstitucionAdmin(usuarioLogueado.institucion);
+                  }*/
+            });
+        </script>
 </body>
 
 </html>
