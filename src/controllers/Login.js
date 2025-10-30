@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const formulario = document.getElementById("formulario");
   const login = document.getElementById("login");
   const mapcontainer = document.getElementById("mapcontainer");
-  const updateBtn = document.getElementById("updateBtn"); // ✅ Añadido: referencia al botón update
+  const updateBtn = document.getElementById("updateBtn");
+  const updateDiv = document.getElementById("update");
   const mensaje = document.getElementById("mensaje-login") || crearMensaje();
 
   btnCrear.addEventListener("click", () => {
@@ -115,12 +116,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userRole === "admin" || userRole === "administrador") {
       if (updateBtn) {
         updateBtn.style.display = "block";
-        console.log("Botón de admin mostrado"); // Para debugging
+        if (updateDiv) {
+          updateDiv.style.display = "block";
+        }
+        console.log("Botón de admin mostrado");
       }
     } else {
       // Ocultar botón si no es admin
       if (updateBtn) {
         updateBtn.style.display = "none";
+        if (updateDiv) {
+          updateDiv.style.display = "none";
+        }
       }
     }
   }

@@ -322,7 +322,6 @@ form{
     box-shadow: 0 2px 16px #277a9b33;
     padding: 15px;
     min-width: 200px;
-    z-index: 10;
     border: 1px solid #277a9b;
     display: none;
     height: 33rem;
@@ -491,14 +490,14 @@ form{
 
 #update {
   position: absolute;
-  bottom: 20px;
-  right: 10px;
+  top: 20px;
+  left: 10px;
   z-index: 1000;
 }
 
 #updateBtn{
      position: absolute;
-    top: 15px;
+    top: -5px;
     left: 15px;
     padding: 10px 15px;
     font-size: 1rem;
@@ -514,7 +513,8 @@ form{
     z-index: 1000;
     font-weight: bold;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    height: 35px;
+    height: 48px;
+    width: 203px;
 }
 #updateBtn:hover {
     background-color: #277a9b;
