@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Actualizar Instituciones - SIGCultCuba</title>
+</head>
+
+<body>
+    <div class="update-container">
+        <header class="update-header">
+            <h1><span class="sig-rojo">SIG</span><span class="sig-azul">Cult</span><span class="sig-rojo">Cuba</span>
+            </h1>
+            <h2>Actualización de Instituciones</h2>
+        </header>
+
+        <div class="update-content">
+            <div id="admin-info" class="admin-info">
+                <!-- Aquí se mostrará la información del administrador -->
+            </div>
+
+            <div class="update-actions">
+                <button id="btn-volver" class="btn-volver">Volver al Mapa</button>
+                <button id="btn-actualizar" class="btn-actualizar">Guardar Cambios</button>
+            </div>
+
+            <div id="instituciones-list" class="instituciones-list">
+                <!-- Aquí se cargará la lista de instituciones -->
+            </div>
+        </div>
+    </div>
+
+    <script src="src/controllers/updateController.js"></script>
+</body>
+
+</html>
