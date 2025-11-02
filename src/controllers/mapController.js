@@ -213,11 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const mapcontainer = document.getElementById("mapcontainer");
   const InfoUpdate = document.getElementById("InfoUpdate");
 
-  updateBtn.addEventListener("click", () => {
-    InfoUpdate.style.display = "flex";
-    mapcontainer.style.display = "none";
-  });
-
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === "style") {

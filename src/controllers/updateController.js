@@ -1,385 +1,239 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const btnVolver = document.getElementById("btn-volver");
-  const btnActualizar = document.getElementById("btn-actualizar");
-  const btnNuevaInstitucion = document.getElementById("btn-nueva-institucion");
-  const adminInfo = document.getElementById("admin-info");
-  const institucionesList = document.getElementById("instituciones-list");
+console.log("✅ updateController.js cargado correctamente");
 
-  // Cargar información del usuario logueado
-  cargarInfoUsuario();
-  cargarInstitucionesDelConsejo();
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("🔌 DOM completamente cargado - Iniciando carga de datos");
 
-  // Event Listeners
-  btnVolver.addEventListener("click", volverAlMapa);
-  btnActualizar.addEventListener("click", guardarCambios);
-  btnNuevaInstitucion.addEventListener("click", agregarNuevaInstitucion);
+  const adminInfoDiv = document.getElementById("admin-info");
+  const institucionesListDiv = document.getElementById("instituciones-list");
 
-  function cargarInfoUsuario() {
-    const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
+  // Verificar que los elementos existen
+  console.log("📦 Elementos encontrados:", {
+    adminInfo: !!adminInfoDiv,
+    institucionesList: !!institucionesListDiv,
+  });
 
-    if (usuarioLogueado) {
-      const nombreCompleto = `${usuarioLogueado.nombre || ""} ${
-        usuarioLogueado.apellido1 || ""
-      } ${usuarioLogueado.apellido2 || ""}`.trim();
-      const institucion = usuarioLogueado.institucion || "Sistema";
+  try {
+    // ==============================================
+    // 1️⃣ OBTENER EL TOKEN DEL LOCALSTORAGE
+    // ==============================================
+    console.log("🔐 Paso 1: Obteniendo token del localStorage");
+    const token = localStorage.getItem("token");
 
-      adminInfo.innerHTML = `
-        <h3>${nombreCompleto}</h3>
-        <p><strong>Administrador de:</strong> ${institucion}</p>
-        <p><strong>Usuario:</strong> ${usuarioLogueado.username || "N/A"}</p>
-      `;
-    } else {
-      adminInfo.innerHTML = `
-        <h3>Usuario no identificado</h3>
-        <p>Por favor, inicie sesión nuevamente</p>
-      `;
-    }
-  }
-
-  async function cargarInstitucionesDelConsejo() {
-    try {
-      const usuarioLogueado = JSON.parse(
-        localStorage.getItem("usuarioLogueado")
-      );
-      const token = localStorage.getItem("token");
-
-      if (!usuarioLogueado || !usuarioLogueado.institucion) {
-        throw new Error("No se pudo determinar la institución del usuario");
-      }
-
-      const consejoUsuario = usuarioLogueado.institucion;
-      console.log("Buscando instituciones del consejo:", consejoUsuario);
-
-      // Primero cargar todas las instituciones
-      const response = await fetch("http://localhost:3000/api/instituciones", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const todasLasInstituciones = await response.json();
-
-        // Filtrar localmente por consejo
-        const institucionesFiltradas = todasLasInstituciones.filter(
-          (institucion) => institucion.consejo === consejoUsuario
-        );
-
-        console.log("Instituciones filtradas:", institucionesFiltradas);
-        mostrarInstituciones(institucionesFiltradas);
-      } else {
-        throw new Error("Error al cargar instituciones");
-      }
-    } catch (error) {
-      console.error("Error al cargar instituciones:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "No se pudieron cargar las instituciones de su consejo",
-      });
-    }
-  }
-
-  function mostrarInstituciones(instituciones) {
-    if (!instituciones || instituciones.length === 0) {
-      institucionesList.innerHTML = `
-        <div class="sin-instituciones">
-          <p>No hay instituciones registradas para su consejo.</p>
-          <p>Puede agregar una nueva institución usando el botón "Agregar Nueva Institución".</p>
-        </div>
+    if (!token) {
+      console.error("❌ No hay token en localStorage - Usuario no autenticado");
+      adminInfoDiv.innerHTML = `
+        <h3 style="color:red;">⚠️ No has iniciado sesión</h3>
+        <p>Por favor, <a href="index.html">inicia sesión</a> primero.</p>
       `;
       return;
     }
 
-    const html = instituciones
-      .map(
-        (inst) => `
-            <div class="institucion-item">
-                <div class="institucion-info">
-                    <h4>${inst.nombre || "Sin nombre"}</h4>
-                    <p><strong>Consejo:</strong> ${
-                      inst.consejo || "No especificado"
-                    }</p>
-                    <p><strong>Tipo:</strong> ${
-                      inst.tipo_institucion || "No especificado"
-                    }</p>
-                    <p><strong>Ubicación:</strong> ${inst.latitud || "N/A"}, ${
-          inst.longitud || "N/A"
-        }</p>
-                    <p><strong>Dirección:</strong> ${
-                      inst.direccion || "No especificada"
-                    }</p>
-                    <p><strong>Teléfono:</strong> ${
-                      inst.telefono || "No especificado"
-                    }</p>
-                    <p><strong>Email:</strong> ${
-                      inst.email || "No especificado"
-                    }</p>
-                </div>
-                <div class="institucion-actions">
-                    <button class="btn-editar" data-id="${
-                      inst.id
-                    }">Editar</button>
-                    <button class="btn-eliminar" data-id="${
-                      inst.id
-                    }">Eliminar</button>
-                </div>
-            </div>
-        `
-      )
-      .join("");
+    console.log("✅ Token encontrado:", token.substring(0, 20) + "...");
 
-    institucionesList.innerHTML = html;
+    // ==============================================
+    // 2️⃣ OBTENER DATOS DEL USUARIO LOGUEADO
+    // ==============================================
+    console.log("🔍 Paso 2: Solicitando datos del usuario al backend");
+    console.log("📡 URL de petición: http://localhost:3000/api/auth/user");
 
-    // Agregar event listeners a los botones
-    document.querySelectorAll(".btn-editar").forEach((btn) => {
-      btn.addEventListener("click", (e) =>
-        editarInstitucion(e.target.dataset.id)
-      );
-    });
-
-    document.querySelectorAll(".btn-eliminar").forEach((btn) => {
-      btn.addEventListener("click", (e) =>
-        eliminarInstitucion(e.target.dataset.id)
-      );
-    });
-  }
-
-  function volverAlMapa() {
-    window.location.href = "index.html";
-  }
-
-  function guardarCambios() {
-    Swal.fire({
-      title: "¿Guardar cambios?",
-      text: "Se guardarán todas las modificaciones realizadas en las instituciones de su consejo",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#b62f1d",
-      cancelButtonColor: "#6c757d",
-      confirmButtonText: "Sí, guardar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire(
-          "¡Guardado!",
-          "Los cambios han sido guardados correctamente.",
-          "success"
-        );
-      }
-    });
-  }
-
-  function agregarNuevaInstitucion() {
-    const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
-    const consejoUsuario = usuarioLogueado?.institucion || "";
-
-    Swal.fire({
-      title: "Nueva Institución",
-      html: `
-        <input id="swal-nombre" class="swal2-input" placeholder="Nombre de la institución" required>
-        <input id="swal-tipo" class="swal2-input" placeholder="Tipo de institución">
-        <input id="swal-direccion" class="swal2-input" placeholder="Dirección">
-        <input id="swal-telefono" class="swal2-input" placeholder="Teléfono">
-        <input id="swal-email" class="swal2-input" placeholder="Email">
-        <input id="swal-latitud" class="swal2-input" placeholder="Latitud" type="number" step="any">
-        <input id="swal-longitud" class="swal2-input" placeholder="Longitud" type="number" step="any">
-        <input id="swal-consejo" class="swal2-input" value="${consejoUsuario}" readonly style="background-color: #f0f0f0;">
-        <small>Consejo (no editable)</small>
-      `,
-      confirmButtonText: "Crear",
-      focusConfirm: false,
-      preConfirm: () => {
-        const nombre = document.getElementById("swal-nombre").value;
-        if (!nombre) {
-          Swal.showValidationMessage("El nombre es obligatorio");
-          return false;
-        }
-        return {
-          nombre: nombre,
-          tipo_institucion: document.getElementById("swal-tipo").value,
-          direccion: document.getElementById("swal-direccion").value,
-          telefono: document.getElementById("swal-telefono").value,
-          email: document.getElementById("swal-email").value,
-          latitud: document.getElementById("swal-latitud").value,
-          longitud: document.getElementById("swal-longitud").value,
-          consejo: consejoUsuario,
-        };
+    const userResponse = await fetch("http://localhost:3000/api/auth/user", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        crearInstitucionEnServidor(result.value);
-      }
     });
-  }
 
-  async function crearInstitucionEnServidor(datos) {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/instituciones", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(datos),
+    console.log("📨 Respuesta del servidor (status):", userResponse.status);
+
+    if (!userResponse.ok) {
+      console.error("❌ Error en la respuesta del servidor");
+      console.error("Status:", userResponse.status);
+      console.error("StatusText:", userResponse.statusText);
+
+      adminInfoDiv.innerHTML = `
+        <h3 style="color:red;">Error: No se pudo obtener la sesión del usuario</h3>
+        <p>Código de error: ${userResponse.status}</p>
+      `;
+      return;
+    }
+
+    const user = await userResponse.json();
+    console.log("👤 Datos del usuario recibidos:", user);
+    console.log("📋 Detalles del usuario:", {
+      username: user.username,
+      institucion: user.institucion,
+      role: user.role,
+      email: user.email,
+    });
+
+    // Validar que tenemos los datos necesarios
+    if (!user || !user.username) {
+      console.warn("⚠️ Los datos del usuario están incompletos");
+      console.warn("Datos recibidos:", user);
+      adminInfoDiv.innerHTML = `
+        <h3>⚠️ Datos de usuario incompletos</h3>
+        <p>Por favor, inicia sesión nuevamente.</p>
+      `;
+      return;
+    }
+
+    // ==============================================
+    // 3️⃣ MOSTRAR INFO DEL ADMINISTRADOR
+    // ==============================================
+    console.log("🖼️ Paso 3: Mostrando información del usuario en pantalla");
+
+    const nombreCompleto = `${user.name || ""} ${user.apellido1 || ""} ${
+      user.apellido2 || ""
+    }`.trim();
+    const institucion = user.institucion || "Sin institución asignada";
+
+    console.log("✏️ Renderizando:", {
+      nombreCompleto: nombreCompleto,
+      username: user.username,
+      institucion: institucion,
+    });
+
+    adminInfoDiv.innerHTML = `
+      <h3>👤 Usuario: <strong>${user.username}</strong></h3>
+      <p><strong>Nombre completo:</strong> ${nombreCompleto}</p>
+      <p><strong>Administrador de:</strong> ${institucion}</p>
+      <p><strong>Email:</strong> ${user.email || "No especificado"}</p>
+    `;
+
+    // ==============================================
+    // 4️⃣ SOLICITAR ENTIDADES DE LA INSTITUCIÓN
+    // ==============================================
+    console.log("🏛️ Paso 4: Consultando entidades del consejo");
+    console.log("🔎 Filtrando por consejo:", institucion);
+
+    // Construir la URL con el filtro
+    const urlInstituciones = `http://localhost:3000/api/instituciones?tipo=${encodeURIComponent(
+      institucion
+    )}`;
+    console.log("📡 URL de petición:", urlInstituciones);
+
+    const entidadesResponse = await fetch(urlInstituciones, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(
+      "📨 Respuesta de entidades (status):",
+      entidadesResponse.status
+    );
+
+    if (!entidadesResponse.ok) {
+      throw new Error(
+        `Error al obtener entidades: ${entidadesResponse.statusText}`
+      );
+    }
+
+    const entidades = await entidadesResponse.json();
+    console.log("📦 Entidades recibidas:", entidades);
+    console.log("📊 Cantidad de entidades:", entidades.length);
+
+    // ==============================================
+    // 5️⃣ MOSTRAR LISTADO DE ENTIDADES
+    // ==============================================
+    console.log("📋 Paso 5: Renderizando lista de entidades");
+
+    if (!entidades || entidades.length === 0) {
+      console.warn(`⚠️ No hay entidades para la institución: ${institucion}`);
+
+      institucionesListDiv.innerHTML = `
+        <div class="sin-instituciones" style="padding: 20px; text-align: center;">
+          <h3>📭 No hay instituciones registradas</h3>
+          <p>No se encontraron entidades asociadas a <strong>${institucion}</strong>.</p>
+        </div>
+      `;
+    } else {
+      console.log(`✅ Renderizando ${entidades.length} entidades`);
+
+      // Mostrar cada entidad en consola
+      entidades.forEach((ent, index) => {
+        console.log(`  ${index + 1}. ${ent.nombre} - ${ent.tipo_institucion}`);
       });
 
-      if (response.ok) {
-        Swal.fire(
-          "¡Creada!",
-          "La institución ha sido creada exitosamente.",
-          "success"
-        );
-        // Recargar la lista
-        cargarInstitucionesDelConsejo();
-      } else {
-        throw new Error("Error al crear la institución");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      Swal.fire("Error", "No se pudo crear la institución", "error");
+      institucionesListDiv.innerHTML = `
+        <h3>🏛️ Entidades de <strong>${institucion}</strong></h3>
+        <div class="entidades-grid" style="display: grid; gap: 15px; margin-top: 20px;">
+          ${entidades
+            .map((ent, index) => {
+              console.log(`Renderizando entidad ${index + 1}:`, ent.nombre);
+              return `
+              <div class="entidad-card" style="
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 4px solid #277a9b;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              ">
+                <h4 style="margin: 0 0 10px 0; color: #c72d18;">
+                  ${ent.nombre || "Sin nombre"}
+                </h4>
+                <p><strong>📍 Tipo:</strong> ${
+                  ent.tipo_institucion || "No especificado"
+                }</p>
+                <p><strong>🗺️ Coordenadas:</strong> ${ent.latitud || "N/A"}, ${
+                ent.longitud || "N/A"
+              }</p>
+                <p><strong>🆔 ID:</strong> ${ent.id}</p>
+              </div>
+            `;
+            })
+            .join("")}
+        </div>
+      `;
     }
+
+    console.log("✅ Carga completa del panel de actualización");
+  } catch (error) {
+    console.error("💥 ERROR GENERAL:", error);
+    console.error("📍 Tipo de error:", error.name);
+    console.error("📝 Mensaje:", error.message);
+    console.error("🔍 Stack trace:", error.stack);
+
+    institucionesListDiv.innerHTML = `
+      <div style="padding: 20px; background: #ffebee; border-radius: 8px; border-left: 4px solid #c72d18;">
+        <h3 style="color: #c72d18;">⚠️ Error al cargar la información</h3>
+        <p><strong>Error:</strong> ${error.message}</p>
+        <p>Revisa la consola del navegador (F12) para más detalles.</p>
+      </div>
+    `;
   }
 
-  function editarInstitucion(id) {
-    // Encontrar la institución por ID
-    const institucionItem = document
-      .querySelector(`.btn-editar[data-id="${id}"]`)
-      .closest(".institucion-item");
-    const institucionInfo = institucionItem.querySelector(".institucion-info");
+  // ==============================================
+  // 6️⃣ MANEJO DE BOTONES
+  // ==============================================
+  console.log("🔘 Configurando event listeners para botones");
 
-    // Obtener los datos actuales
-    const nombre = institucionInfo.querySelector("h4").textContent;
-    const consejo = institucionInfo
-      .querySelector("p:nth-child(2)")
-      .textContent.replace("Consejo: ", "");
-    const tipo = institucionInfo
-      .querySelector("p:nth-child(3)")
-      .textContent.replace("Tipo: ", "");
-    const direccion = institucionInfo
-      .querySelector("p:nth-child(5)")
-      .textContent.replace("Dirección: ", "");
-    const telefono = institucionInfo
-      .querySelector("p:nth-child(6)")
-      .textContent.replace("Teléfono: ", "");
-    const email = institucionInfo
-      .querySelector("p:nth-child(7)")
-      .textContent.replace("Email: ", "");
+  const btnVolver = document.getElementById("btn-volver");
+  const btnActualizar = document.getElementById("btn-actualizar");
 
-    Swal.fire({
-      title: "Editar Institución",
-      html: `
-        <input id="swal-nombre" class="swal2-input" placeholder="Nombre" value="${nombre}" required>
-        <input id="swal-tipo" class="swal2-input" placeholder="Tipo" value="${tipo}">
-        <input id="swal-direccion" class="swal2-input" placeholder="Dirección" value="${direccion}">
-        <input id="swal-telefono" class="swal2-input" placeholder="Teléfono" value="${telefono}">
-        <input id="swal-email" class="swal2-input" placeholder="Email" value="${email}">
-        <input id="swal-consejo" class="swal2-input" value="${consejo}" readonly style="background-color: #f0f0f0;">
-        <small>Consejo (no editable)</small>
-      `,
-      confirmButtonText: "Guardar",
-      focusConfirm: false,
-      preConfirm: () => {
-        const nombre = document.getElementById("swal-nombre").value;
-        if (!nombre) {
-          Swal.showValidationMessage("El nombre es obligatorio");
-          return false;
-        }
-        return {
-          id: id,
-          nombre: nombre,
-          tipo_institucion: document.getElementById("swal-tipo").value,
-          direccion: document.getElementById("swal-direccion").value,
-          telefono: document.getElementById("swal-telefono").value,
-          email: document.getElementById("swal-email").value,
-          consejo: consejo,
-        };
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        actualizarInstitucionEnServidor(result.value);
-      }
+  if (btnVolver) {
+    console.log("✅ Botón 'Volver' encontrado");
+    btnVolver.addEventListener("click", () => {
+      console.log("↩️ Botón 'Volver al mapa' presionado");
+      console.log("🔄 Redirigiendo a index.html");
+      window.location.href = "index.html";
     });
+  } else {
+    console.warn("⚠️ Botón 'Volver' no encontrado en el DOM");
   }
 
-  async function actualizarInstitucionEnServidor(datos) {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:3000/api/instituciones/${datos.id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(datos),
-        }
-      );
-
-      if (response.ok) {
-        Swal.fire(
-          "¡Actualizado!",
-          "La institución ha sido actualizada.",
-          "success"
-        );
-        // Recargar la lista
-        cargarInstitucionesDelConsejo();
-      } else {
-        throw new Error("Error al actualizar la institución");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      Swal.fire("Error", "No se pudo actualizar la institución", "error");
-    }
-  }
-
-  function eliminarInstitucion(id) {
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esta acción",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#b62d18",
-      cancelButtonColor: "#6c757d",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        eliminarInstitucionEnServidor(id);
-      }
+  if (btnActualizar) {
+    console.log("✅ Botón 'Actualizar' encontrado");
+    btnActualizar.addEventListener("click", () => {
+      console.log("💾 Botón 'Guardar Cambios' presionado");
+      alert("Funcionalidad de actualización aún no implementada.");
     });
+  } else {
+    console.warn("⚠️ Botón 'Actualizar' no encontrado en el DOM");
   }
 
-  async function eliminarInstitucionEnServidor(id) {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:3000/api/instituciones/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        Swal.fire(
-          "¡Eliminado!",
-          "La institución ha sido eliminada.",
-          "success"
-        );
-        // Recargar la lista
-        cargarInstitucionesDelConsejo();
-      } else {
-        throw new Error("Error al eliminar la institución");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      Swal.fire("Error", "No se pudo eliminar la institución", "error");
-    }
-  }
+  console.log("🎉 Inicialización del controlador completada");
 });
