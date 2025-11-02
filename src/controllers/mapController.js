@@ -44,6 +44,7 @@ function crearIconoConsejo(consejo) {
     ICL: "#14B8A6",
     ARTEX: "#F97316",
     EGREM: "#A855F7",
+    CNEArt: "#6D28D9",
   };
 
   // Mapeo de símbolos
@@ -61,7 +62,7 @@ function crearIconoConsejo(consejo) {
     CNAP: "🎨",
     "CNAP  Galerias Arte Provincial": "🖼️",
     Monumentos: "🏛️",
-    "Museos Nacionales y Provinciales": "🏺",
+    "Museos Nacionales y Provinciales": "🏟",
     "Sitios Nacionales": "⛩️",
     "Cine ICAIC": "🎬",
     "Sala de Videos ICAIC": "📹",
@@ -69,6 +70,7 @@ function crearIconoConsejo(consejo) {
     ICL: "📚",
     ARTEX: "🎭",
     EGREM: "🎤",
+    CNEArt: "✨",
   };
 
   const color = coloresPorConsejo[consejo] || "#6B7280";
@@ -222,7 +224,7 @@ async function cargarConsejos() {
       ],
       ICAIC: ["Cine ICAIC", "Sala de Videos ICAIC"],
     },
-    individuales: ["ICM", "ICL", "ARTEX", "EGREM"],
+    individuales: ["ICM", "ICL", "ARTEX", "EGREM", "CNEArt"],
   };
 
   // 1. Generar la estructura de Acordeón para Grupos Desplegables
