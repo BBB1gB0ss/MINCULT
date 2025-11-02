@@ -16,9 +16,17 @@ app.use(
     credentials: true,
   })
 );
+
+// 🆕 Servir archivos estáticos (IMPORTANTE PARA LAS IMÁGENES)
 const capasPath = path.join(__dirname, "../../geocuba-fronted/public/capas");
-console.log("Express.static sirviendo /capas desde:", capasPath); // <--- ¡Añade esta línea!
+const uploadsPath = path.join(__dirname, "../uploads");
+
+console.log("📂 Express.static configurado:");
+console.log("  └─ /capas desde:", capasPath);
+console.log("  └─ /uploads desde:", uploadsPath);
+
 app.use("/capas", express.static(capasPath));
+app.use("/uploads", express.static(uploadsPath)); // 🆕 ESTA LÍNEA ES NUEVA
 
 app.use(helmet());
 app.use(morgan("dev"));

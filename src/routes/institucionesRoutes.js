@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db.js");
+const upload = require("../config/multer.js"); // 🆕 IMPORTAR MULTER
+const auth = require("../middlewares/authMiddleware.js"); // 🆕 IMPORTAR AUTH
 
 // =========================================================
 // RUTA 1: Obtener la lista ÚNICA de consejos (para filtros)
@@ -51,174 +53,56 @@ router.get("/instituciones", async (req, res) => {
       console.log("🔍 Filtrando por consejos:", tipoArray);
     }
 
-    // 🆕 CONSULTA CON ABSOLUTAMENTE TODOS LOS CAMPOS DE LA TABLA
+    // Consulta con TODOS los campos de tu tabla
     const sqlQuery = `
         SELECT 
-            -- Identificadores básicos
-            tid, 
-            fid,
-            id,
-            cod_id,
-            
-            -- Información general
-            nombre_institucion,
-            objeto_social_centros_cult,
-            estado_técnico_edificación,
-            estado_constructivo,
-            identificacion,
-            año_fundacion,
-            fecha_fundacion,
-            fecha,
-            especialidad,
-            especialización,
-            graduados_históricos,
-            nomenclador,
-            cantidad_trabajadores,
-            subordinacion,
-            entidad_responsable,
-            consejo,
-            clasificacion,
-            res,
-            
-            -- Capacidad y estado
-            capacidad,
-            en_servicio,
-            cerrado,
-            en_construccion,
-            funcionando,
-            
-            -- Estados constructivos
-            estado_constructivo_bueno,
-            estado_constructivo_regular,
-            estado_constructivo_malo,
-            
-            -- Bibliotecas
-            total_de_bibliotecas_prov,
-            de_ellas_en_servicios,
-            de_ellas_en_servicios_extension,
-            total_bibliotecas_municipales,
-            prestatarios_inscrito,
-            asistentes_otros_solicitantes,
-            servicios_prestados_biblioteca,
-            servicios_prestados_oneline,
-            servicios_prestados_online,
-            actividades_generales,
-            personal_biblioteca_total,
-            personal_biblioteca_mujeres,
-            pensonal_biblioteca_total,
-            pensonal_biblioteca_mujeres,
-            fondo_bibliotecario,
-            
-            -- Cines y funciones
-            total_funciones_cinematog,
-            total_funciones_polivalente,
-            total_espectadores_cinematog,
-            total_espectadores_polivalentes,
-            total_recaudacion_cinematog,
-            total_recaudacion_polivalentes,
-            
-            -- Teatro
-            funciones_teatro,
-            funciones_danza,
-            asistente_teatro,
-            asistente_danza,
-            teatro_grupos,
-            teatro_integrantes,
-            teatro_cant,
-            teatro_asist,
-            
-            -- Danza
-            danza_grupos,
-            danza_integrantes,
-            danza_cant,
-            danza_asist,
-            
-            -- Música
-            musica_cant,
-            musica_asist,
-            
-            -- Artes visuales
-            art_visuales_cant,
-            art_visuales_asist,
-            
-            -- Literatura
-            literatura_cant,
-            literatura_asist,
-            presentaciones_libros,
-            cantidad_escritores,
-            cantidad_escritores_mujeres,
-            
-            -- Interdisciplinaria
-            interdisciplinaria_cant,
-            interdisciplinaria_asist,
-            
-            -- Totales generales
-            funciones,
-            asistente,
-            asistentes,
-            total_cant,
-            total_asist,
-            
-            -- Personal
-            fuerza_tecnica_instructores,
-            fuerza_tecnica_promotores,
-            
-            -- Grupos
-            grupos,
-            integrantes,
-            mujeres,
-            
-            -- Actividades
-            actividades,
-            
-            -- Museos
-            total_museos_mincult,
-            de_ellas_servicio,
-            total_visitantes,
-            visitantes_nacionales,
-            visitantes_extranjeros,
-            total_actividades_enseñanza,
-            actividades_vinculada_enseñanza,
-            participantes_enseñanza,
-            total_actividades_comunidad,
-            actividades_vinculada_comunidad,
-            participantes_comunidad,
-            
-            -- Campos editables (nuevos)
-            descripcion,
-            galeria,
-            
-            -- Geometría
+            tid, fid, id, cod_id,
+            nombre_institucion, objeto_social_centros_cult, estado_técnico_edificación,
+            estado_constructivo, identificacion, año_fundacion, fecha_fundacion, fecha,
+            especialidad, especialización, graduados_históricos, nomenclador,
+            cantidad_trabajadores, subordinacion, entidad_responsable, consejo,
+            clasificacion, res, capacidad, en_servicio, cerrado, en_construccion,
+            funcionando, estado_constructivo_bueno, estado_constructivo_regular,
+            estado_constructivo_malo, total_de_bibliotecas_prov, de_ellas_en_servicios,
+            de_ellas_en_servicios_extension, total_bibliotecas_municipales,
+            prestatarios_inscrito, asistentes_otros_solicitantes,
+            servicios_prestados_biblioteca, servicios_prestados_oneline,
+            servicios_prestados_online, actividades_generales,
+            personal_biblioteca_total, personal_biblioteca_mujeres,
+            pensonal_biblioteca_total, pensonal_biblioteca_mujeres,
+            fondo_bibliotecario, total_funciones_cinematog, total_funciones_polivalente,
+            total_espectadores_cinematog, total_espectadores_polivalentes,
+            total_recaudacion_cinematog, total_recaudacion_polivalentes,
+            funciones_teatro, funciones_danza, asistente_teatro, asistente_danza,
+            teatro_grupos, teatro_integrantes, teatro_cant, teatro_asist,
+            danza_grupos, danza_integrantes, danza_cant, danza_asist,
+            musica_cant, musica_asist, art_visuales_cant, art_visuales_asist,
+            literatura_cant, literatura_asist, presentaciones_libros,
+            cantidad_escritores, cantidad_escritores_mujeres,
+            interdisciplinaria_cant, interdisciplinaria_asist,
+            funciones, asistente, asistentes, total_cant, total_asist,
+            fuerza_tecnica_instructores, fuerza_tecnica_promotores,
+            grupos, integrantes, mujeres, actividades,
+            total_museos_mincult, de_ellas_servicio, total_visitantes,
+            visitantes_nacionales, visitantes_extranjeros,
+            total_actividades_enseñanza, actividades_vinculada_enseñanza,
+            participantes_enseñanza, total_actividades_comunidad,
+            actividades_vinculada_comunidad, participantes_comunidad,
+            descripcion, galeria,
             ST_Y(geom) AS latitud, 
             ST_X(geom) AS longitud
-            
         FROM cultura.entidades
         ${whereClause}
         ORDER BY nombre_institucion
     `;
 
-    console.log("📝 Ejecutando query SQL con todos los campos");
+    console.log("📝 Ejecutando query SQL");
     const result = await client.query(sqlQuery, values);
     console.log(`✅ Entidades encontradas: ${result.rows.length}`);
 
-    // Log de campos con valores para la primera entidad (si existe)
-    if (result.rows.length > 0) {
-      const primeraEntidad = result.rows[0];
-      const camposConValor = Object.keys(primeraEntidad).filter(
-        (key) => primeraEntidad[key] !== null && primeraEntidad[key] !== ""
-      );
-      console.log(
-        `📊 Campos con valor en primera entidad: ${camposConValor.length}/${
-          Object.keys(primeraEntidad).length
-        }`
-      );
-      console.log(`📋 Algunos campos con valor:`, camposConValor.slice(0, 10));
-    }
-
     res.json(result.rows);
   } catch (err) {
-    console.error("❌ Error en consulta de instituciones:", err);
-    console.error("❌ Detalle del error:", err.message);
+    console.error("❌ Error en consulta:", err);
     res.status(500).json({ message: "Error al obtener las instituciones." });
   } finally {
     if (client) client.release();
@@ -240,7 +124,6 @@ router.put("/instituciones/:id", async (req, res) => {
   try {
     client = await pool.connect();
 
-    // Construir query dinámicamente solo con los campos que vienen
     let updateFields = [];
     let values = [];
     let paramCounter = 1;
@@ -253,11 +136,10 @@ router.put("/instituciones/:id", async (req, res) => {
     }
 
     if (galeria !== undefined) {
-      // PostgreSQL espera un array de texto
       updateFields.push(`galeria = $${paramCounter}`);
       values.push(galeria);
       paramCounter++;
-      console.log("🖼️ Actualizando galería con", galeria.length, "imágenes");
+      console.log("🖼️ Actualizando galería");
     }
 
     if (updateFields.length === 0) {
@@ -274,34 +156,103 @@ router.put("/instituciones/:id", async (req, res) => {
       RETURNING id, nombre_institucion, descripcion, galeria
     `;
 
-    console.log("📝 Query de actualización:", sqlQuery);
-    console.log("📊 Valores:", values);
-
+    console.log("📝 Query:", sqlQuery);
     const result = await client.query(sqlQuery, values);
 
     if (result.rows.length === 0) {
-      console.log("❌ Institución no encontrada con ID:", id);
+      console.log("❌ Institución no encontrada");
       return res.status(404).json({ message: "Institución no encontrada" });
     }
 
-    console.log("✅ Institución actualizada exitosamente");
-    console.log("📋 Datos actualizados:", result.rows[0]);
-
+    console.log("✅ Actualización exitosa");
     res.json({
       message: "Institución actualizada exitosamente",
       data: result.rows[0],
     });
   } catch (err) {
-    console.error("❌ Error al actualizar institución:", err);
-    console.error("❌ Detalle del error:", err.message);
-    console.error("❌ Stack:", err.stack);
-    res.status(500).json({
-      message: "Error al actualizar la institución",
-      error: err.message,
-    });
+    console.error("❌ Error:", err);
+    res.status(500).json({ message: "Error al actualizar" });
   } finally {
     if (client) client.release();
   }
 });
+
+// =========================================================
+// 🆕 RUTA 4: Subir imágenes para la galería
+// URL: POST /api/instituciones/:id/upload-images
+// =========================================================
+router.post(
+  "/instituciones/:id/upload-images",
+  auth(),
+  upload.array("images", 10),
+  async (req, res) => {
+    console.log(
+      `📤 Solicitud: POST /api/instituciones/${req.params.id}/upload-images`
+    );
+    console.log("📦 Archivos recibidos:", req.files ? req.files.length : 0);
+
+    const { id } = req.params;
+
+    let client;
+    try {
+      if (!req.files || req.files.length === 0) {
+        console.log("⚠️ No se recibieron archivos");
+        return res.status(400).json({ message: "No se recibieron archivos" });
+      }
+
+      // Generar URLs de las imágenes subidas
+      const imageUrls = req.files.map((file) => {
+        const url = `/uploads/galeria/${file.filename}`;
+        console.log("🖼️ URL generada:", url);
+        return url;
+      });
+
+      console.log(`✅ ${imageUrls.length} imágenes procesadas`);
+
+      // Obtener galería actual
+      client = await pool.connect();
+      const currentGallery = await client.query(
+        "SELECT galeria FROM cultura.entidades WHERE id = $1",
+        [id]
+      );
+
+      if (currentGallery.rows.length === 0) {
+        console.log("❌ Entidad no encontrada");
+        return res.status(404).json({ message: "Entidad no encontrada" });
+      }
+
+      // Combinar galería actual con nuevas imágenes
+      const galeriaActual = currentGallery.rows[0].galeria || [];
+      const nuevaGaleria = [...galeriaActual, ...imageUrls];
+
+      console.log("📊 Galería actualizada:");
+      console.log(`  └─ Imágenes anteriores: ${galeriaActual.length}`);
+      console.log(`  └─ Imágenes nuevas: ${imageUrls.length}`);
+      console.log(`  └─ Total: ${nuevaGaleria.length}`);
+
+      // Actualizar en la base de datos
+      const result = await client.query(
+        "UPDATE cultura.entidades SET galeria = $1 WHERE id = $2 RETURNING id, nombre_institucion, galeria",
+        [nuevaGaleria, id]
+      );
+
+      console.log("✅ Galería actualizada en la BD");
+
+      res.json({
+        message: "Imágenes subidas exitosamente",
+        data: result.rows[0],
+        uploadedImages: imageUrls,
+      });
+    } catch (err) {
+      console.error("❌ Error al subir imágenes:", err);
+      res.status(500).json({
+        message: "Error al subir imágenes",
+        error: err.message,
+      });
+    } finally {
+      if (client) client.release();
+    }
+  }
+);
 
 module.exports = router;

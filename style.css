@@ -689,4 +689,34 @@ form{
     .btn-volver, .btn-actualizar, .btn-nueva {
         width: 100%;
     }
-}   
+}
+/* ----- ESTILOS PARA UPDATE.HTML ----- */
+.update-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+}
+
+/* Estilos para las tarjetas de entidades */
+.entidades-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.entidad-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.entidad-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(39, 122, 155, 0.2) !important;
+}
+
+.sin-instituciones {
+    background: white;
+    padding: 40px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+} 
