@@ -103,6 +103,96 @@ function crearIconoConsejo(consejo) {
   });
 }
 
+// ==============================================
+// 🖼️ FUNCIÓN PARA CREAR POPUP CON GALERÍA
+// ==============================================
+function crearPopupContenido(institucion) {
+  console.log(`🖼️ Creando popup para: ${institucion.nombre_institucion}`);
+
+  let galeriaHTML = "";
+  if (institucion.galeria && institucion.galeria.length > 0) {
+    console.log(`  └─ Galería con ${institucion.galeria.length} imágenes`);
+    galeriaHTML = `
+      <div style="margin-top: 15px;">
+        <strong style="color: #277a9b;">🖼️ Galería:</strong>
+        <div style="
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+          margin-top: 10px;
+        ">
+          ${institucion.galeria
+            .slice(0, 4)
+            .map(
+              (url, index) => `
+            <img 
+              src="http://localhost:3000${url}" 
+              alt="Imagen ${index + 1}"
+              style="
+                width: 100%;
+                height: 100px;
+                object-fit: cover;
+                border-radius: 5px;
+                cursor: pointer;
+                border: 2px solid #277a9b;
+              "
+              onclick="window.open('http://localhost:3000${url}', '_blank')"
+              onerror="this.style.display='none'"
+            >
+          `
+            )
+            .join("")}
+        </div>
+        ${
+          institucion.galeria.length > 4
+            ? `<p style="text-align: center; color: #666; font-size: 0.85rem; margin-top: 5px;">+${
+                institucion.galeria.length - 4
+              } más</p>`
+            : ""
+        }
+      </div>
+    `;
+  }
+
+  let descripcionHTML = "";
+  if (institucion.descripcion) {
+    const descripcionCorta =
+      institucion.descripcion.length > 150
+        ? institucion.descripcion.substring(0, 150) + "..."
+        : institucion.descripcion;
+    descripcionHTML = `
+      <div style="margin-top: 12px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #277a9b;">
+        <strong style="color: #277a9b;">📝 Descripción:</strong>
+        <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #444; line-height: 1.4;">
+          ${descripcionCorta}
+        </p>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="min-width: 250px; max-width: 380px;">
+      <h3 style="margin: 0 0 8px 0; color: #c72d18; font-size: 1.2rem;">
+        ${institucion.nombre_institucion || "Sin nombre"}
+      </h3>
+      <div style="
+        background: #277a9b;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        display: inline-block;
+        font-size: 0.85rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+      ">
+        ${institucion.consejo || "Sin consejo"}
+      </div>
+      ${descripcionHTML}
+      ${galeriaHTML}
+    </div>
+  `;
+}
+
 /**
  * Función para cargar la lista de consejos, agrupando según las reglas específicas.
  */
@@ -214,7 +304,10 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
 
   try {
     let url = "http://localhost:3000/api/instituciones";
-    const queryParams = filtrosSeleccionados.join(",");
+    // 🔧 CODIFICAR CORRECTAMENTE cada filtro
+    const queryParams = filtrosSeleccionados
+      .map((tipo) => encodeURIComponent(tipo))
+      .join(",");
     url = `${url}?tipo=${queryParams}`;
 
     console.log("📡 Cargando instituciones desde:", url);
@@ -233,25 +326,22 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
     instituciones.forEach((institucion) => {
       if (institucion.latitud && institucion.longitud) {
         console.log(
-          `📍 Agregando marcador: ${institucion.nombre} (${institucion.consejo})`
+          `📍 Agregando marcador: ${institucion.nombre_institucion} (${institucion.consejo})`
         );
 
         // 🎨 CREAR ICONO PERSONALIZADO
         const iconoPersonalizado = crearIconoConsejo(institucion.consejo);
 
+        // 🖼️ CREAR POPUP CON GALERÍA Y DESCRIPCIÓN
+        const popupContent = crearPopupContenido(institucion);
+
         // CREAR MARCADOR CON EL ICONO
         const marcador = L.marker([institucion.latitud, institucion.longitud], {
           icon: iconoPersonalizado,
-        }).bindPopup(`
-          <div style="min-width: 200px;">
-            <h3 style="margin: 0 0 10px 0; color: #c72d18;">${
-              institucion.nombre || "Sin nombre"
-            }</h3>
-            <p><strong>Consejo:</strong> ${
-              institucion.consejo || "No especificado"
-            }</p>
-          </div>
-        `);
+        }).bindPopup(popupContent, {
+          maxWidth: 400,
+          maxHeight: 500,
+        });
 
         marcadores.addLayer(marcador);
       }
