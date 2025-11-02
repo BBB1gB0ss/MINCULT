@@ -17,7 +17,7 @@ function crearIconoConsejo(consejo) {
   // Mapeo de colores por consejo
   const coloresPorConsejo = {
     // CNCC
-    "CNCC Jovenes": "#FF6B6B",
+    "CNCC  Jovenes": "#FF6B6B",
     "CNCC Niños": "#4ECDC4",
     "CNCC Adultos": "#95E1D3",
     "CNCC Adultos Mayor": "#F38181",
@@ -31,7 +31,7 @@ function crearIconoConsejo(consejo) {
     "CNAE Provincial": "#059669",
     // CNAP
     CNAP: "#F59E0B",
-    "CNAP Galerias Arte Provincial": "#D97706",
+    "CNAP  Galerias Arte Provincial": "#D97706",
     // CNPC
     Monumentos: "#8B5CF6",
     "Museos Nacionales y Provinciales": "#7C3AED",
@@ -48,7 +48,7 @@ function crearIconoConsejo(consejo) {
 
   // Mapeo de símbolos
   const simbolosPorConsejo = {
-    "CNCC Jovenes": "👥",
+    "CNCC  Jovenes": "👥",
     "CNCC Niños": "🧒",
     "CNCC Adultos": "👨",
     "CNCC Adultos Mayor": "👴",
@@ -59,7 +59,7 @@ function crearIconoConsejo(consejo) {
     "CNAE Municipal": "🏫",
     "CNAE Provincial": "🎓",
     CNAP: "🎨",
-    "CNAP Galerias Arte Provincial": "🖼️",
+    "CNAP  Galerias Arte Provincial": "🖼️",
     Monumentos: "🏛️",
     "Museos Nacionales y Provinciales": "🏺",
     "Sitios Nacionales": "⛩️",
@@ -206,7 +206,7 @@ async function cargarConsejos() {
   const gruposDefinidos = {
     desplegables: {
       CNCC: [
-        "CNCC Jovenes",
+        "CNCC  Jovenes",
         "CNCC Niños",
         "CNCC Adultos",
         "CNCC Adultos Mayor",
@@ -214,7 +214,7 @@ async function cargarConsejos() {
       ],
       BNJM: ["BNJM", "BNJM Municp-Sucursal", "BNJM Provincial"],
       CNAE: ["CNAE Municipal", "CNAE Provincial"],
-      CNAP: ["CNAP", "CNAP Galerias Arte Provincial"],
+      CNAP: ["CNAP", "CNAP  Galerias Arte Provincial"],
       CNPC: [
         "Monumentos",
         "Museos Nacionales y Provinciales",

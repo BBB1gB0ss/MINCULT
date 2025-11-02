@@ -150,17 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
   }
-
-  // BOTONES
-  const btnVolver = document.getElementById("btn-volver");
-  if (btnVolver) {
-    btnVolver.addEventListener(
-      "click",
-      () => (window.location.href = "index.html")
-    );
-  }
 });
-
 // ==============================================
 // 🎨 RENDERIZAR ENTIDAD COMPLETA
 // ==============================================
