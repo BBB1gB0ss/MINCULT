@@ -636,13 +636,19 @@ form{
     box-shadow: 0 4px 20px rgba(39, 122, 155, 0.15);
 }
 
+.btn-buscar{
+    border-radius: 12%;
+    width: 6rem;
+    color: #ffffff;
+    font-size: 1rem;
+}
 /* Responsive */
 @media (max-width: 768px) {
     .update-actions {
         flex-direction: column;
     }
     
-    .btn-volver, .btn-actualizar, .btn-nueva {
+    .btn-buscar {
         width: 100%;
     }
 }
