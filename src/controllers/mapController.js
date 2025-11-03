@@ -62,7 +62,7 @@ function crearIconoConsejo(consejo) {
     CNAP: "🎨",
     "CNAP  Galerias Arte Provincial": "🖼️",
     Monumentos: "🏛️",
-    "Museos Nacionales y Provinciales": "🏟",
+    "Museos Nacionales y Provinciales": "🏯",
     "Sitios Nacionales": "⛩️",
     "Cine ICAIC": "🎬",
     "Sala de Videos ICAIC": "📹",

@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db.js");
-const upload = require("../config/multer.js"); // 🆕 IMPORTAR MULTER
-const auth = require("../middlewares/authMiddleware.js"); // 🆕 IMPORTAR AUTH
+const upload = require("../config/multer.js");
+const auth = require("../middlewares/authMiddleware.js");
 
 // =========================================================
 // RUTA 1: Obtener la lista ÚNICA de consejos (para filtros)
-// URL: GET /api/consejos
 // =========================================================
 router.get("/consejos", async (req, res) => {
   console.log("📋 Solicitud: GET /api/consejos");
@@ -29,7 +28,6 @@ router.get("/consejos", async (req, res) => {
 
 // =========================================================
 // RUTA 2: Obtener las instituciones con TODOS los campos
-// URL: GET /api/instituciones?tipo=ARTEX,EGREM
 // =========================================================
 router.get("/instituciones", async (req, res) => {
   console.log("🏛️ Solicitud: GET /api/instituciones");
@@ -53,10 +51,10 @@ router.get("/instituciones", async (req, res) => {
       console.log("🔍 Filtrando por consejos:", tipoArray);
     }
 
-    // Consulta con TODOS los campos de tu tabla
+    // ✅ CONSULTA ACTUALIZADA: Ahora usa 'id' en lugar de 'tid'
     const sqlQuery = `
         SELECT 
-            tid, fid, id, cod_id,
+            id, cod_id,
             nombre_institucion, objeto_social_centros_cult, estado_técnico_edificación,
             estado_constructivo, identificacion, año_fundacion, fecha_fundacion, fecha,
             especialidad, especialización, graduados_históricos, nomenclador,
@@ -111,7 +109,6 @@ router.get("/instituciones", async (req, res) => {
 
 // =========================================================
 // RUTA 3: Actualizar una institución (PUT)
-// URL: PUT /api/instituciones/:id
 // =========================================================
 router.put("/instituciones/:id", async (req, res) => {
   console.log(`🔄 Solicitud: PUT /api/instituciones/${req.params.id}`);
@@ -178,8 +175,7 @@ router.put("/instituciones/:id", async (req, res) => {
 });
 
 // =========================================================
-// 🆕 RUTA 4: Subir imágenes para la galería
-// URL: POST /api/instituciones/:id/upload-images
+// RUTA 4: Subir imágenes para la galería
 // =========================================================
 router.post(
   "/instituciones/:id/upload-images",
@@ -200,7 +196,6 @@ router.post(
         return res.status(400).json({ message: "No se recibieron archivos" });
       }
 
-      // Generar URLs de las imágenes subidas
       const imageUrls = req.files.map((file) => {
         const url = `/uploads/galeria/${file.filename}`;
         console.log("🖼️ URL generada:", url);
@@ -209,7 +204,6 @@ router.post(
 
       console.log(`✅ ${imageUrls.length} imágenes procesadas`);
 
-      // Obtener galería actual
       client = await pool.connect();
       const currentGallery = await client.query(
         "SELECT galeria FROM cultura.entidades WHERE id = $1",
@@ -221,7 +215,6 @@ router.post(
         return res.status(404).json({ message: "Entidad no encontrada" });
       }
 
-      // Combinar galería actual con nuevas imágenes
       const galeriaActual = currentGallery.rows[0].galeria || [];
       const nuevaGaleria = [...galeriaActual, ...imageUrls];
 
@@ -230,7 +223,6 @@ router.post(
       console.log(`  └─ Imágenes nuevas: ${imageUrls.length}`);
       console.log(`  └─ Total: ${nuevaGaleria.length}`);
 
-      // Actualizar en la base de datos
       const result = await client.query(
         "UPDATE cultura.entidades SET galeria = $1 WHERE id = $2 RETURNING id, nombre_institucion, galeria",
         [nuevaGaleria, id]

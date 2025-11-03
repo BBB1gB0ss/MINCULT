@@ -23,10 +23,50 @@
             </div>
 
             <div class="update-actions">
-                <div class="update-buscar">
-                    <input type="text" id="input-buscar" placeholder="Buscar por nombre">
+                <div class="update-buscar" style="flex: 1; display: flex; gap: 10px;">
+                    <input type="text" id="input-buscar" placeholder="🔍 Buscar por ID o nombre de institución..."
+                        style="
+                            flex: 1;
+                            padding: 12px 20px;
+                            font-size: 1rem;
+                            border: 2px solid #277a9b;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(39, 122, 155, 0.1);
+                            transition: all 0.3s;
+                        " onkeypress="if(event.key==='Enter') document.getElementById('btn-buscar').click()">
+                    <button id="btn-buscar" class="btn-buscar" style="
+                            background: #277a9b;
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: bold;
+                            font-size: 1rem;
+                            width: 9rem;
+                            transition: all 0.3s;
+                            box-shadow: 0 2px 8px rgba(39, 122, 155, 0.2);
+                        " onmouseover="this.style.background='#1e5f7a'; this.style.transform='scale(1.05)'"
+                        onmouseout="this.style.background='#277a9b'; this.style.transform='scale(1)'">
+                        🔍 Buscar
+                    </button>
+                    <button id="btn-limpiar" class="btn-limpiar" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: bold;
+                            font-size: 1rem;
+                            transition: all 0.3s;
+                            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+                        " onclick="document.getElementById('input-buscar').value=''; location.reload();"
+                        onmouseover="this.style.background='#5a6268'; this.style.transform='scale(1.05)'"
+                        onmouseout="this.style.background='#6c757d'; this.style.transform='scale(1)'">
+                        🔄 Limpiar
+                    </button>
                 </div>
-                <button id="btn-buscar" class="btn-buscar" style="background: #6c757d;">🔍 Buscar</button>
             </div>
 
             <div id="instituciones-list" class="instituciones-list">

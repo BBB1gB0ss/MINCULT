@@ -1,10 +1,16 @@
-console.log("✅ updateController.js cargado - VERSIÓN COMPLETA");
+console.log(
+  "✅ updateController.js cargado - VERSIÓN COMPLETA CON BÚSQUEDA Y ELIMINACIÓN"
+);
+
+let entidadesCargadas = []; // Variable global para almacenar todas las entidades
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("🔌 DOM cargado");
 
   const adminInfoDiv = document.getElementById("admin-info");
   const institucionesListDiv = document.getElementById("instituciones-list");
+  const btnBuscar = document.getElementById("btn-buscar");
+  const inputBuscar = document.getElementById("input-buscar");
 
   try {
     // ==============================================
@@ -113,34 +119,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       throw new Error(`Error: ${entidadesResponse.statusText}`);
     }
 
-    const entidades = await entidadesResponse.json();
-    console.log(`📦 Recibidas: ${entidades.length}`);
+    entidadesCargadas = await entidadesResponse.json();
+    console.log(`📦 Recibidas: ${entidadesCargadas.length}`);
 
     // ==============================================
-    // 5️⃣ RENDERIZAR
+    // 5️⃣ RENDERIZAR INICIALMENTE
     // ==============================================
-    if (!entidades || entidades.length === 0) {
-      institucionesListDiv.innerHTML = `
-        <div style="padding: 40px; text-align: center;">
-          <h3>📭 No hay instituciones</h3>
-        </div>
-      `;
-    } else {
-      console.log(`✅ Renderizando ${entidades.length} entidades`);
+    renderizarEntidades(entidadesCargadas, institucionesListDiv, token);
 
-      institucionesListDiv.innerHTML = `
-        <h3>🏛️ Entidades de <strong>${institucion}</strong></h3>
-        <p style="color: #666; margin-bottom: 20px;">${
-          entidades.length
-        } instituciones</p>
-        <div class="entidades-container">
-          ${entidades.map((ent) => renderEntidadCompleta(ent)).join("")}
-        </div>
-      `;
+    // ==============================================
+    // 6️⃣ FUNCIONALIDAD DE BÚSQUEDA
+    // ==============================================
+    btnBuscar.addEventListener("click", () => {
+      realizarBusqueda(inputBuscar.value, institucionesListDiv, token);
+    });
 
-      // ✅ AGREGAR EVENT LISTENERS
-      agregarEventListenersEdicion(entidades, token);
-    }
+    inputBuscar.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        realizarBusqueda(inputBuscar.value, institucionesListDiv, token);
+      }
+    });
   } catch (error) {
     console.error("💥 ERROR:", error);
     institucionesListDiv.innerHTML = `
@@ -151,6 +149,88 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
   }
 });
+
+// ==============================================
+// 🔍 FUNCIÓN DE BÚSQUEDA
+// ==============================================
+function realizarBusqueda(termino, contenedor, token) {
+  console.log("🔍 Buscando:", termino);
+
+  if (!termino || termino.trim() === "") {
+    // Si no hay término, mostrar todas
+    renderizarEntidades(entidadesCargadas, contenedor, token);
+    return;
+  }
+
+  const terminoBusqueda = termino.toLowerCase().trim();
+
+  const resultados = entidadesCargadas.filter((entidad) => {
+    // Buscar por ID (número exacto o contenido)
+    const idMatch =
+      entidad.id && entidad.id.toString().includes(terminoBusqueda);
+
+    // Buscar por nombre (contiene el término)
+    const nombreMatch =
+      entidad.nombre_institucion &&
+      entidad.nombre_institucion.toLowerCase().includes(terminoBusqueda);
+
+    return idMatch || nombreMatch;
+  });
+
+  console.log(`📊 Resultados encontrados: ${resultados.length}`);
+
+  if (resultados.length === 0) {
+    contenedor.innerHTML = `
+      <div style="padding: 40px; text-align: center; background: #fff3cd; border-radius: 8px;">
+        <h3>🔍 No se encontraron resultados</h3>
+        <p>No hay instituciones que coincidan con: <strong>"${termino}"</strong></p>
+        <button onclick="location.reload()" style="
+          margin-top: 15px;
+          padding: 10px 20px;
+          background: #277a9b;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+        ">🔄 Mostrar todas</button>
+      </div>
+    `;
+  } else {
+    renderizarEntidades(resultados, contenedor, token);
+  }
+}
+
+// ==============================================
+// 🎨 RENDERIZAR ENTIDADES
+// ==============================================
+function renderizarEntidades(entidades, contenedor, token) {
+  if (!entidades || entidades.length === 0) {
+    contenedor.innerHTML = `
+      <div style="padding: 40px; text-align: center;">
+        <h3>📭 No hay instituciones</h3>
+      </div>
+    `;
+    return;
+  }
+
+  const institucion =
+    entidades.length > 0 ? entidades[0].consejo : "Institución";
+
+  contenedor.innerHTML = `
+    <h3>🏛️ Entidades de <strong>${institucion}</strong></h3>
+    <p style="color: #666; margin-bottom: 20px;">${
+      entidades.length
+    } instituciones</p>
+    <div class="entidades-container">
+      ${entidades.map((ent) => renderEntidadCompleta(ent)).join("")}
+    </div>
+  `;
+
+  // Agregar event listeners
+  agregarEventListenersEdicion(entidades, token);
+}
+
 // ==============================================
 // 🎨 RENDERIZAR ENTIDAD COMPLETA
 // ==============================================
@@ -217,24 +297,41 @@ function renderEntidadCompleta(ent) {
       <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #c72d18;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h4 style="color: #c72d18; margin: 0;">🖼️ Galería</h4>
-          <button 
-            class="btn-editar-galeria" 
-            data-id="${ent.id}"
-            style="
-              background: #c72d18;
-              color: white;
-              border: none;
-              padding: 8px 20px;
-              border-radius: 6px;
-              cursor: pointer;
-              font-weight: bold;
-            "
-          >
-            📤 Editar Galería
-          </button>
+          <div style="display: flex; gap: 10px;">
+            <button 
+              class="btn-eliminar-imagenes" 
+              data-id="${ent.id}"
+              style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+              "
+            >
+              🗑️ Eliminar
+            </button>
+            <button 
+              class="btn-editar-galeria" 
+              data-id="${ent.id}"
+              style="
+                background: #c72d18;
+                color: white;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+              "
+            >
+              📤 Agregar
+            </button>
+          </div>
         </div>
         <div style="min-height: 100px;">
-          ${renderGaleria(ent.galeria)}
+          ${renderGaleria(ent.galeria, ent.id)}
         </div>
       </div>
     </div>
@@ -250,7 +347,7 @@ function mostrarCampo(etiqueta, valor, icono = "📌") {
   `;
 }
 
-function renderGaleria(galeria) {
+function renderGaleria(galeria, entidadId) {
   if (!galeria || galeria.length === 0) {
     return '<em style="color: #999;">Sin imágenes</em>';
   }
@@ -279,6 +376,8 @@ function renderGaleria(galeria) {
           ">
             🖼️
           </div>
+          <input type="checkbox" class="checkbox-imagen" data-entidad="${entidadId}" data-url="${url}" 
+            style="position: absolute; top: 5px; left: 5px; width: 20px; height: 20px; cursor: pointer; display: none;">
         </div>
       `
         )
@@ -311,20 +410,20 @@ function agregarEventListenersEdicion(entidades, token) {
         confirmButtonColor: "#277a9b",
       });
 
-      if (nuevaDescripcion) {
+      if (nuevaDescripcion !== undefined) {
         await actualizarEntidad(id, { descripcion: nuevaDescripcion }, token);
       }
     });
   });
 
-  // GALERÍA
+  // AGREGAR A GALERÍA
   document.querySelectorAll(".btn-editar-galeria").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
       const entidad = entidades.find((ent) => ent.id == id);
 
       const { value: opcion } = await Swal.fire({
-        title: "Editar Galería",
+        title: "Agregar a Galería",
         html: `<strong>${entidad.nombre_institucion}</strong>`,
         showDenyButton: true,
         showCancelButton: true,
@@ -340,6 +439,91 @@ function agregarEventListenersEdicion(entidades, token) {
       }
     });
   });
+
+  // ELIMINAR IMÁGENES
+  document.querySelectorAll(".btn-eliminar-imagenes").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const id = e.target.dataset.id;
+      const entidad = entidades.find((ent) => ent.id == id);
+
+      await eliminarImagenes(id, entidad, token);
+    });
+  });
+}
+
+// ==============================================
+// 🗑️ ELIMINAR IMÁGENES
+// ==============================================
+async function eliminarImagenes(id, entidad, token) {
+  const galeriaActual = entidad.galeria || [];
+
+  if (galeriaActual.length === 0) {
+    await Swal.fire({
+      icon: "info",
+      title: "Sin imágenes",
+      text: "Esta institución no tiene imágenes en su galería",
+    });
+    return;
+  }
+
+  // Crear HTML con checkboxes para seleccionar imágenes
+  const imagenesHTML = galeriaActual
+    .map(
+      (url, index) => `
+    <div style="display: inline-block; margin: 10px; text-align: center;">
+      <img 
+        src="http://localhost:3000${url}" 
+        style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;"
+        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23ddd%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2230%22%3E🖼️%3C/text%3E%3C/svg%3E'"
+      >
+      <br>
+      <input type="checkbox" class="img-checkbox" value="${index}" style="width: 20px; height: 20px; margin-top: 8px; cursor: pointer;">
+    </div>
+  `
+    )
+    .join("");
+
+  const { value: confirmacion } = await Swal.fire({
+    title: "Eliminar Imágenes",
+    html: `
+      <p><strong>${entidad.nombre_institucion}</strong></p>
+      <p style="color: #666; margin-bottom: 15px;">Selecciona las imágenes que deseas eliminar:</p>
+      <div style="max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        ${imagenesHTML}
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: "🗑️ Eliminar Seleccionadas",
+    cancelButtonText: "❌ Cancelar",
+    confirmButtonColor: "#dc3545",
+    preConfirm: () => {
+      const checkboxes = document.querySelectorAll(".img-checkbox:checked");
+      const indicesSeleccionados = Array.from(checkboxes).map((cb) =>
+        parseInt(cb.value)
+      );
+
+      if (indicesSeleccionados.length === 0) {
+        Swal.showValidationMessage("Debes seleccionar al menos una imagen");
+        return false;
+      }
+
+      return indicesSeleccionados;
+    },
+  });
+
+  if (confirmacion) {
+    // Crear nueva galería sin las imágenes seleccionadas
+    const nuevaGaleria = galeriaActual.filter(
+      (_, index) => !confirmacion.includes(index)
+    );
+
+    console.log("🗑️ Eliminando imágenes:");
+    console.log(`  └─ Total anterior: ${galeriaActual.length}`);
+    console.log(`  └─ Eliminadas: ${confirmacion.length}`);
+    console.log(`  └─ Total nuevo: ${nuevaGaleria.length}`);
+
+    await actualizarEntidad(id, { galeria: nuevaGaleria }, token);
+  }
 }
 
 // ==============================================
@@ -447,4 +631,4 @@ async function actualizarEntidad(id, datos, token) {
   }
 }
 
-console.log("🎉 Inicializado");
+console.log("🎉 Inicializado con búsqueda y eliminación de imágenes");
