@@ -354,9 +354,151 @@ form{
 #filtros.active {
     display: block;
 }
+/* ========================================== */
+/* BUSCADOR DE ENTIDADES EN EL MAPA */
+/* ========================================== */
+
+.buscador-entidades {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 500px;
+    max-width: 90%;
+}
+
+#input-buscar-entidad {
+    width: 60%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: 2px solid #277a9b;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 4px 15px rgba(39, 122, 155, 0.3);
+    transition: all 0.3s;
+    outline: none;
+    left: 33rem;
+    position: relative;
+    top: -0.3rem;
+}
+
+#input-buscar-entidad:focus {
+    border-color: #c72d18;
+    box-shadow: 0 6px 20px rgba(199, 45, 24, 0.4);
+    background: white;
+}
+
+.resultados-busqueda {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 2px solid #277a9b;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+}
+
+.resultados-busqueda.active {
+    display: block;
+}
+
+.resultado-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resultado-item:last-child {
+    border-bottom: none;
+}
+
+.resultado-item:hover {
+    background: linear-gradient(90deg, #e3f2fd 0%, #f8f9fa 100%);
+    transform: translateX(5px);
+}
+
+.resultado-nombre {
+    font-weight: bold;
+    color: #c72d18;
+    font-size: 1rem;
+}
+
+.resultado-consejo {
+    display: inline-block;
+    background: #277a9b;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.resultado-direccion {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.resultado-sin-resultados {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.resultado-cargando {
+    padding: 20px;
+    text-align: center;
+    color: #277a9b;
+}
+
+/* Scrollbar personalizado para resultados */
+.resultados-busqueda::-webkit-scrollbar {
+    width: 8px;
+}
+
+.resultados-busqueda::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.resultados-busqueda::-webkit-scrollbar-thumb {
+    background: #277a9b;
+    border-radius: 10px;
+}
+
+.resultados-busqueda::-webkit-scrollbar-thumb:hover {
+    background: #1e5f7a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .buscador-entidades {
+        width: 90%;
+        top: 10px;
+    }
+    
+    #input-buscar-entidad {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .resultados-busqueda {
+        max-height: 300px;
+    }
+}
 /* =========================================== */
 /* MEJORAS VISUALES: GRUPO ACORDEÓN / ESTILOS GENERALES */
-/* (Asegúrate de que este bloque esté en tu CSS) */
 /* =========================================== */
 
 /* Contenedor de la lista de checkboxes */

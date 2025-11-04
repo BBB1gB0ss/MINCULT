@@ -8,6 +8,9 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 // Capa para los marcadores
 var marcadores = L.layerGroup().addTo(mapa);
 
+// ✅ NUEVO: Variable global para almacenar todas las instituciones cargadas
+let todasLasInstituciones = [];
+
 // ==============================================
 // 🎨 FUNCIÓN PARA CREAR ICONOS PERSONALIZADOS
 // ==============================================
@@ -403,6 +406,9 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
     const instituciones = await response.json();
     console.log(`📦 Instituciones recibidas: ${instituciones.length}`);
 
+    // ✅ NUEVO: Guardar las instituciones para el buscador
+    todasLasInstituciones = instituciones;
+
     marcadores.clearLayers();
 
     instituciones.forEach((institucion) => {
@@ -483,6 +489,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (mapcontainer.style.display !== "none") {
           mapa.invalidateSize();
           cargarConsejos();
+          inicializarBuscador(); // ✅ NUEVO: Inicializar buscador
           observer.disconnect();
         }
       }
@@ -491,3 +498,185 @@ document.addEventListener("DOMContentLoaded", () => {
 
   observer.observe(mapcontainer, { attributes: true });
 });
+
+// ==============================================
+// 🔍 FUNCIONALIDAD DEL BUSCADOR DE ENTIDADES
+// ==============================================
+function inicializarBuscador() {
+  console.log("🔍 Inicializando buscador de entidades");
+
+  const inputBuscar = document.getElementById("input-buscar-entidad");
+  const resultadosDiv = document.getElementById("resultados-busqueda");
+
+  console.log("📋 Input encontrado:", inputBuscar ? "✅ Sí" : "❌ No");
+  console.log(
+    "📋 Div resultados encontrado:",
+    resultadosDiv ? "✅ Sí" : "❌ No"
+  );
+
+  if (!inputBuscar || !resultadosDiv) {
+    console.error("❌ No se encontraron elementos del buscador");
+    console.error(
+      "Verifica que Index.html tenga los elementos con IDs correctos"
+    );
+    return;
+  }
+
+  console.log("✅ Buscador inicializado correctamente");
+
+  // Evento de escritura en el input
+  let timeoutBusqueda;
+  inputBuscar.addEventListener("input", (e) => {
+    clearTimeout(timeoutBusqueda);
+    const termino = e.target.value.trim();
+
+    console.log(`🔍 Usuario escribió: "${termino}"`);
+
+    if (termino.length < 2) {
+      resultadosDiv.classList.remove("active");
+      return;
+    }
+
+    // Debounce de 300ms
+    timeoutBusqueda = setTimeout(() => {
+      buscarEntidades(termino, resultadosDiv);
+    }, 300);
+  });
+
+  // Cerrar resultados al hacer clic fuera
+  document.addEventListener("click", (e) => {
+    if (!inputBuscar.contains(e.target) && !resultadosDiv.contains(e.target)) {
+      resultadosDiv.classList.remove("active");
+    }
+  });
+
+  // Limpiar input con ESC
+  inputBuscar.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      inputBuscar.value = "";
+      resultadosDiv.classList.remove("active");
+    }
+  });
+}
+
+function buscarEntidades(termino, resultadosDiv) {
+  console.log(`🔍 Buscando: "${termino}"`);
+
+  if (todasLasInstituciones.length === 0) {
+    resultadosDiv.innerHTML = `
+      <div class="resultado-sin-resultados">
+        ⚠️ Primero selecciona un filtro para cargar instituciones
+      </div>
+    `;
+    resultadosDiv.classList.add("active");
+    return;
+  }
+
+  const terminoLower = termino.toLowerCase();
+
+  // Buscar en las instituciones cargadas
+  const resultados = todasLasInstituciones.filter((institucion) => {
+    const nombreMatch =
+      institucion.nombre_institucion &&
+      institucion.nombre_institucion.toLowerCase().includes(terminoLower);
+
+    const direccionMatch =
+      institucion.direccion &&
+      institucion.direccion.toLowerCase().includes(terminoLower);
+
+    return nombreMatch || direccionMatch;
+  });
+
+  console.log(`📊 Resultados encontrados: ${resultados.length}`);
+
+  // Limitar a 10 resultados
+  const resultadosLimitados = resultados.slice(0, 10);
+
+  if (resultadosLimitados.length === 0) {
+    resultadosDiv.innerHTML = `
+      <div class="resultado-sin-resultados">
+        😕 No se encontraron instituciones con "${termino}"
+      </div>
+    `;
+  } else {
+    resultadosDiv.innerHTML = resultadosLimitados
+      .map(
+        (institucion) => `
+      <div class="resultado-item" data-id="${institucion.id}" data-lat="${
+          institucion.latitud
+        }" data-lng="${institucion.longitud}">
+        <div class="resultado-nombre">
+          📍 ${institucion.nombre_institucion || "Sin nombre"}
+        </div>
+        <span class="resultado-consejo">
+          ${institucion.consejo || "Sin consejo"}
+        </span>
+        ${
+          institucion.direccion
+            ? `<div class="resultado-direccion">📌 ${institucion.direccion}</div>`
+            : ""
+        }
+      </div>
+    `
+      )
+      .join("");
+
+    // Agregar eventos de clic a cada resultado
+    resultadosDiv.querySelectorAll(".resultado-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const lat = parseFloat(item.dataset.lat);
+        const lng = parseFloat(item.dataset.lng);
+        const id = item.dataset.id;
+
+        if (lat && lng) {
+          mostrarEntidadEnMapa(id, lat, lng);
+          resultadosDiv.classList.remove("active");
+          document.getElementById("input-buscar-entidad").value = "";
+        }
+      });
+    });
+
+    if (resultados.length > 10) {
+      resultadosDiv.innerHTML += `
+        <div class="resultado-sin-resultados" style="border-top: 1px solid #e0e0e0; padding: 10px;">
+          📋 Mostrando 10 de ${resultados.length} resultados
+        </div>
+      `;
+    }
+  }
+
+  resultadosDiv.classList.add("active");
+}
+
+function mostrarEntidadEnMapa(id, lat, lng) {
+  console.log(`🎯 Mostrando entidad ID: ${id} en [${lat}, ${lng}]`);
+
+  // Centrar el mapa en la ubicación
+  mapa.setView([lat, lng], 15, {
+    animate: true,
+    duration: 1,
+  });
+
+  // Buscar el marcador correspondiente y abrir su popup
+  setTimeout(() => {
+    marcadores.eachLayer((layer) => {
+      const latlng = layer.getLatLng();
+      if (
+        Math.abs(latlng.lat - lat) < 0.0001 &&
+        Math.abs(latlng.lng - lng) < 0.0001
+      ) {
+        layer.openPopup();
+
+        // Efecto visual: hacer bounce al marcador
+        const icon = layer.getElement();
+        if (icon) {
+          icon.style.transition = "transform 0.3s";
+          icon.style.transform = "scale(1.2)";
+          setTimeout(() => {
+            icon.style.transform = "scale(1)";
+          }, 300);
+        }
+      }
+    });
+  }, 500);
+}
