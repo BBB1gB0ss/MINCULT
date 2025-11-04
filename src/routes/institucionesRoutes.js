@@ -41,32 +41,36 @@ router.get("/instituciones", async (req, res) => {
     let whereClause = "";
     let values = [];
 
+    // ✅ CORREGIDO: Placeholders con $
     if (tipos) {
-      const tipoArray = tipos.split(",");
+      const tipoArray = tipos.split(",").map((t) => t.trim());
       const placeholders = tipoArray
-        .map((_, index) => `$${index + 1}`)
+        .map((_, index) => `$${index + 1}`) // ✅ AGREGADO EL $
         .join(",");
       whereClause = `WHERE consejo IN (${placeholders})`;
       values = tipoArray;
       console.log("🔍 Filtrando por consejos:", tipoArray);
+    } else {
+      console.log("🌍 Sin filtros - devolviendo TODAS las instituciones");
     }
 
-    // ✅ CONSULTA ACTUALIZADA: Ahora usa 'id' en lugar de 'tid'
-    // Usamos COALESCE para campos que puedan no existir
     const sqlQuery = `
         SELECT 
-            id,  
+            id, 
             cod_id,
             nombre_institucion, 
             objeto_social_centros_cult, 
             estado_técnico_edificación,
-            COALESCE(direccion, '') as direccion,
-            COALESCE(funcionando, 'No') as funcionando,
+            direccion,
+            consejo_p,
+            municipio,
+            provincias,
+            funcionando,
             estado_constructivo, identificacion, año_fundacion, fecha_fundacion, fecha,
             especialidad, especialización, graduados_históricos, nomenclador,
             cantidad_trabajadores, subordinacion, entidad_responsable, consejo,
             clasificacion, res, capacidad, en_servicio, cerrado, en_construccion,
-            funcionando, estado_constructivo_bueno, estado_constructivo_regular,
+            estado_constructivo_bueno, estado_constructivo_regular,
             estado_constructivo_malo, total_de_bibliotecas_prov, de_ellas_en_servicios,
             de_ellas_en_servicios_extension, total_bibliotecas_municipales,
             prestatarios_inscrito, asistentes_otros_solicitantes,
@@ -112,7 +116,7 @@ router.get("/instituciones", async (req, res) => {
     res.status(500).json({
       message: "Error al obtener las instituciones.",
       error: err.message,
-      hint: "Verifica que las columnas 'direccion', 'estado_técnico_edificación' y 'funcionando' existan en la tabla",
+      hint: "Verifica que las columnas existan en la tabla",
     });
   } finally {
     if (client) client.release();
@@ -130,9 +134,12 @@ router.put("/instituciones/:id", async (req, res) => {
   const {
     descripcion,
     galeria,
-    funcionando,
     direccion,
     estado_técnico_edificación,
+    funcionando,
+    consejo_p,
+    municipio,
+    provincia,
   } = req.body;
 
   let client;
@@ -157,29 +164,54 @@ router.put("/instituciones/:id", async (req, res) => {
       console.log("🖼️ Actualizando galería");
     }
 
-    if (funcionando !== undefined) {
-      updateFields.push(`funcionando = $${paramCounter}`);
-      values.push(funcionando);
-      paramCounter++;
-      console.log("⚡ Actualizando funcionando:", funcionando);
-    }
-
-    // ✅ NUEVO: Manejar campo direccion
     if (direccion !== undefined) {
       updateFields.push(`direccion = $${paramCounter}`);
       values.push(direccion);
       paramCounter++;
-      console.log("📍 Actualizando dirección:", direccion);
+      console.log("📍 Actualizando dirección");
     }
 
-    // ✅ NUEVO: Manejar campo estado_técnico_edificación
+    if (consejo_p !== undefined) {
+      updateFields.push(`consejo_p = $${paramCounter}`);
+      values.push(consejo_p);
+      paramCounter++;
+      console.log("🏘️ Actualizando consejo popular");
+    }
+
+    if (municipio !== undefined) {
+      updateFields.push(`municipio = $${paramCounter}`);
+      values.push(municipio);
+      paramCounter++;
+      console.log("🏙️ Actualizando municipio");
+    }
+
+    if (provincia !== undefined) {
+      updateFields.push(`provincias = $${paramCounter}`);
+      values.push(provincia);
+      paramCounter++;
+      console.log("🗺️ Actualizando provincias");
+    }
+
     if (estado_técnico_edificación !== undefined) {
       updateFields.push(`estado_técnico_edificación = $${paramCounter}`);
       values.push(estado_técnico_edificación);
       paramCounter++;
+      console.log("🏗️ Actualizando estado técnico");
+    }
+
+    if (funcionando !== undefined) {
+      // ✅ Convertir a booleano real para PostgreSQL
+      const funcionandoBoolean =
+        funcionando === true ||
+        funcionando === "true" ||
+        funcionando === "Si" ||
+        funcionando === "si";
+      updateFields.push(`funcionando = $${paramCounter}`);
+      values.push(funcionandoBoolean);
+      paramCounter++;
       console.log(
-        "🏗️ Actualizando estado técnico:",
-        estado_técnico_edificación
+        "⚡ Actualizando estado de funcionamiento a:",
+        funcionandoBoolean
       );
     }
 
@@ -194,10 +226,11 @@ router.put("/instituciones/:id", async (req, res) => {
       UPDATE cultura.entidades 
       SET ${updateFields.join(", ")}
       WHERE id = $${paramCounter}
-      RETURNING id, nombre_institucion, descripcion, galeria, funcionando
+      RETURNING id, nombre_institucion, descripcion, galeria, direccion, consejo_p, municipio, provincias, estado_técnico_edificación, funcionando
     `;
 
     console.log("📝 Query:", sqlQuery);
+    console.log("📝 Values:", values);
     const result = await client.query(sqlQuery, values);
 
     if (result.rows.length === 0) {
@@ -212,7 +245,9 @@ router.put("/instituciones/:id", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error:", err);
-    res.status(500).json({ message: "Error al actualizar" });
+    res
+      .status(500)
+      .json({ message: "Error al actualizar", error: err.message });
   } finally {
     if (client) client.release();
   }
@@ -250,7 +285,7 @@ router.post(
 
       client = await pool.connect();
       const currentGallery = await client.query(
-        "SELECT galeria FROM cultura.entidades WHERE id = $1",
+        "SELECT galeria FROM cultura.entidades WHERE id = $1::integer",
         [id]
       );
 
@@ -268,7 +303,7 @@ router.post(
       console.log(`  └─ Total: ${nuevaGaleria.length}`);
 
       const result = await client.query(
-        "UPDATE cultura.entidades SET galeria = $1 WHERE id = $2 RETURNING id, nombre_institucion, galeria",
+        "UPDATE cultura.entidades SET galeria = $1 WHERE id = $2::integer RETURNING id, nombre_institucion, galeria",
         [nuevaGaleria, id]
       );
 

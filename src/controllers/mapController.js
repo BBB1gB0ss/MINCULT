@@ -114,7 +114,7 @@ function crearIconoConsejo(consejo) {
 function crearPopupContenido(institucion) {
   console.log(`🖼️ Creando popup para: ${institucion.nombre_institucion}`);
 
-  // ✅ NUEVOS CAMPOS: Dirección, Estado Técnico, Funcionando
+  // ✅ NUEVOS CAMPOS: Dirección, Estado Técnico, Funcionando, Consejo Popular, Municipio, Provincia
   let informacionBasicaHTML = `
     <div style="margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #277a9b;">
       <strong style="color: #277a9b;">📋 Información</strong>
@@ -124,6 +124,34 @@ function crearPopupContenido(institucion) {
             ? `
           <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
             <strong>📍 Dirección:</strong> ${institucion.direccion}
+          </p>
+        `
+            : ""
+        }
+            ${
+              institucion.provincias
+                ? `
+          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+            <strong>🗺️ Provincia:</strong> ${institucion.provincias}
+          </p>
+        `
+                : ""
+            }
+        
+        ${
+          institucion.municipio
+            ? `
+          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+            <strong>🏙️ Municipio:</strong> ${institucion.municipio}
+          </p>
+        `
+            : ""
+        }
+        ${
+          institucion.consejo_p
+            ? `
+          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+            <strong>🏘️ Consejo Popular:</strong> ${institucion.consejo_p}
           </p>
         `
             : ""
@@ -524,6 +552,9 @@ function inicializarBuscador() {
 
   console.log("✅ Buscador inicializado correctamente");
 
+  // ✅ CARGAR TODAS LAS INSTITUCIONES AL INICIAR (sin filtros)
+  cargarTodasLasInstitucionesBuscador();
+
   // Evento de escritura en el input
   let timeoutBusqueda;
   inputBuscar.addEventListener("input", (e) => {
@@ -559,13 +590,36 @@ function inicializarBuscador() {
   });
 }
 
+// ✅ NUEVA FUNCIÓN: Cargar todas las instituciones para el buscador
+async function cargarTodasLasInstitucionesBuscador() {
+  console.log("📡 Cargando TODAS las instituciones para búsqueda...");
+
+  try {
+    const response = await fetch("http://localhost:3000/api/instituciones");
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const instituciones = await response.json();
+    todasLasInstituciones = instituciones;
+
+    console.log(
+      `✅ ${instituciones.length} instituciones cargadas para búsqueda`
+    );
+  } catch (error) {
+    console.error("❌ Error al cargar instituciones para búsqueda:", error);
+    todasLasInstituciones = [];
+  }
+}
+
 function buscarEntidades(termino, resultadosDiv) {
   console.log(`🔍 Buscando: "${termino}"`);
 
   if (todasLasInstituciones.length === 0) {
     resultadosDiv.innerHTML = `
       <div class="resultado-sin-resultados">
-        ⚠️ Primero selecciona un filtro para cargar instituciones
+        ⏳ Cargando instituciones... Por favor espera
       </div>
     `;
     resultadosDiv.classList.add("active");
@@ -602,9 +656,23 @@ function buscarEntidades(termino, resultadosDiv) {
     resultadosDiv.innerHTML = resultadosLimitados
       .map(
         (institucion) => `
-      <div class="resultado-item" data-id="${institucion.id}" data-lat="${
-          institucion.latitud
-        }" data-lng="${institucion.longitud}">
+      <div class="resultado-item" 
+           data-id="${institucion.id}" 
+           data-lat="${institucion.latitud}" 
+           data-lng="${institucion.longitud}"
+           data-nombre="${institucion.nombre_institucion || ""}"
+           data-consejo="${institucion.consejo || ""}"
+           data-direccion="${institucion.direccion || ""}"
+           data-consejo-p="${institucion.consejo_p || ""}"
+           data-municipio="${institucion.municipio || ""}"
+           data-provincia="${institucion.provincias || ""}"
+           data-estado="${institucion.estado_técnico_edificación || ""}"
+           data-funcionando="${institucion.funcionando || ""}"
+           data-descripcion="${(institucion.descripcion || "").substring(
+             0,
+             200
+           )}"
+           data-galeria='${JSON.stringify(institucion.galeria || [])}'>
         <div class="resultado-nombre">
           📍 ${institucion.nombre_institucion || "Sin nombre"}
         </div>
@@ -626,10 +694,26 @@ function buscarEntidades(termino, resultadosDiv) {
       item.addEventListener("click", () => {
         const lat = parseFloat(item.dataset.lat);
         const lng = parseFloat(item.dataset.lng);
-        const id = item.dataset.id;
+
+        // Crear objeto institución completo
+        const institucion = {
+          id: item.dataset.id,
+          nombre_institucion: item.dataset.nombre,
+          consejo: item.dataset.consejo,
+          direccion: item.dataset.direccion,
+          consejo_p: item.dataset.consejoP,
+          municipio: item.dataset.municipio,
+          provincias: item.dataset.provincias,
+          estado_técnico_edificación: item.dataset.estado,
+          funcionando: item.dataset.funcionando,
+          descripcion: item.dataset.descripcion,
+          latitud: lat,
+          longitud: lng,
+          galeria: JSON.parse(item.dataset.galeria || "[]"),
+        };
 
         if (lat && lng) {
-          mostrarEntidadEnMapa(id, lat, lng);
+          mostrarEntidadEnMapa(institucion);
           resultadosDiv.classList.remove("active");
           document.getElementById("input-buscar-entidad").value = "";
         }
@@ -648,35 +732,74 @@ function buscarEntidades(termino, resultadosDiv) {
   resultadosDiv.classList.add("active");
 }
 
-function mostrarEntidadEnMapa(id, lat, lng) {
-  console.log(`🎯 Mostrando entidad ID: ${id} en [${lat}, ${lng}]`);
+// ✅ NUEVA VERSIÓN: Crear marcador y mostrar popup
+function mostrarEntidadEnMapa(institucion) {
+  console.log(
+    `🎯 Mostrando entidad: ${institucion.nombre_institucion} en [${institucion.latitud}, ${institucion.longitud}]`
+  );
+
+  if (!institucion.latitud || !institucion.longitud) {
+    Swal.fire({
+      icon: "warning",
+      title: "Sin ubicación",
+      text: "Esta institución no tiene coordenadas geográficas",
+      timer: 2000,
+    });
+    return;
+  }
 
   // Centrar el mapa en la ubicación
-  mapa.setView([lat, lng], 15, {
+  mapa.setView([institucion.latitud, institucion.longitud], 16, {
     animate: true,
     duration: 1,
   });
 
-  // Buscar el marcador correspondiente y abrir su popup
-  setTimeout(() => {
-    marcadores.eachLayer((layer) => {
-      const latlng = layer.getLatLng();
-      if (
-        Math.abs(latlng.lat - lat) < 0.0001 &&
-        Math.abs(latlng.lng - lng) < 0.0001
-      ) {
-        layer.openPopup();
+  // Crear el icono personalizado
+  const iconoPersonalizado = crearIconoConsejo(institucion.consejo);
 
-        // Efecto visual: hacer bounce al marcador
-        const icon = layer.getElement();
-        if (icon) {
-          icon.style.transition = "transform 0.3s";
-          icon.style.transform = "scale(1.2)";
-          setTimeout(() => {
-            icon.style.transform = "scale(1)";
-          }, 300);
-        }
-      }
-    });
+  // Crear el contenido del popup
+  const popupContent = crearPopupContenido(institucion);
+
+  // Limpiar marcadores anteriores de búsqueda (opcional)
+  // marcadores.clearLayers();
+
+  // Crear y agregar el marcador
+  const marcadorBuscado = L.marker(
+    [institucion.latitud, institucion.longitud],
+    {
+      icon: iconoPersonalizado,
+    }
+  ).bindPopup(popupContent, {
+    maxWidth: 400,
+    maxHeight: 500,
+  });
+
+  // Agregar el marcador a la capa
+  marcadores.addLayer(marcadorBuscado);
+
+  // Abrir el popup inmediatamente
+  setTimeout(() => {
+    marcadorBuscado.openPopup();
+
+    // Efecto visual: hacer bounce al marcador
+    const markerElement = marcadorBuscado.getElement();
+    if (markerElement) {
+      markerElement.style.transition = "transform 0.3s ease-in-out";
+      markerElement.style.transform = "scale(1.3)";
+
+      setTimeout(() => {
+        markerElement.style.transform = "scale(1)";
+      }, 300);
+
+      // Pulso adicional
+      setTimeout(() => {
+        markerElement.style.transform = "scale(1.15)";
+        setTimeout(() => {
+          markerElement.style.transform = "scale(1)";
+        }, 200);
+      }, 600);
+    }
   }, 500);
+
+  console.log("✅ Marcador y popup mostrados correctamente");
 }

@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const gruposConsejos = {
       CNCC: [
-        "CNCC  Jovenes",
+        "CNCC Jovenes",
         "CNCC Niños",
         "CNCC Adultos",
         "CNCC Adultos Mayor",
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       ],
       BNJM: ["BNJM", "BNJM Municp-Sucursal", "BNJM Provincial"],
       CNAE: ["CNAE Municipal", "CNAE Provincial"],
-      CNAP: ["CNAP", "CNAP  Galerias Arte Provincial"],
+      CNAP: ["CNAP", "CNAP Galerias Arte Provincial"],
       CNPC: [
         "Monumentos",
         "Museos Nacionales y Provinciales",
@@ -263,7 +263,7 @@ function renderEntidadCompleta(ent) {
         ${mostrarCampo("Longitud", ent.longitud, "🌐")}
       </div>
 
-      <!-- ✅ CAMPOS EDITABLES: Dirección, Estado Técnico, Funcionando -->
+      <!-- ✅ CAMPOS EDITABLES: Dirección, Estado Técnico, Funcionando, Consejo Popular, Municipio, Provincia -->
       <div style="margin-bottom: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border: 2px solid #2196F3;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h4 style="color: #2196F3; margin: 0;">📋 Información General</h4>
@@ -287,6 +287,15 @@ function renderEntidadCompleta(ent) {
           <p style="margin: 8px 0;"><strong>📍 Dirección:</strong> ${
             ent.direccion || '<em style="color: #999;">Sin dirección</em>'
           }</p>
+          <p style="margin: 8px 0;"><strong>🗺️ Provincia:</strong> ${
+            ent.provincias || '<em style="color: #999;">Sin información</em>'
+          }</p>
+          <p style="margin: 8px 0;"><strong>🏙️ Municipio:</strong> ${
+            ent.municipio || '<em style="color: #999;">Sin información</em>'
+          }</p>
+          <p style="margin: 8px 0;"><strong>🏘️ Consejo Popular:</strong> ${
+            ent.consejo_p || '<em style="color: #999;">Sin información</em>'
+          }</p>
           <p style="margin: 8px 0;"><strong>🏗️ Estado Técnico:</strong> ${
             ent.estado_técnico_edificación ||
             '<em style="color: #999;">Sin información</em>'
@@ -298,10 +307,104 @@ function renderEntidadCompleta(ent) {
               border-radius: 12px; 
               font-size: 0.9rem;
               font-weight: bold;
-              background: ${ent.funcionando ? "#d4edda" : "#f8d7da"};
-              color: ${ent.funcionando ? "#155724" : "#721c24"};
+              background: ${(() => {
+                const valor = ent.funcionando;
+                // Normalizar - valores "Si" y "No"
+                if (
+                  valor === "Si" ||
+                  valor === "si" ||
+                  valor === "SI" ||
+                  valor === "Sí" ||
+                  valor === "sí" ||
+                  valor === "SÍ" ||
+                  valor === true ||
+                  valor === 1 ||
+                  valor === "1" ||
+                  valor === "t" ||
+                  valor === "true" ||
+                  valor === "TRUE"
+                ) {
+                  return "#d4edda";
+                } else if (
+                  valor === "No" ||
+                  valor === "no" ||
+                  valor === "NO" ||
+                  valor === false ||
+                  valor === 0 ||
+                  valor === "0" ||
+                  valor === "f" ||
+                  valor === "false" ||
+                  valor === "FALSE"
+                ) {
+                  return "#f8d7da";
+                }
+                return "#e2e3e5";
+              })()};
+              color: ${(() => {
+                const valor = ent.funcionando;
+                if (
+                  valor === "Si" ||
+                  valor === "si" ||
+                  valor === "SI" ||
+                  valor === "Sí" ||
+                  valor === "sí" ||
+                  valor === "SÍ" ||
+                  valor === true ||
+                  valor === 1 ||
+                  valor === "1" ||
+                  valor === "t" ||
+                  valor === "true" ||
+                  valor === "TRUE"
+                ) {
+                  return "#155724";
+                } else if (
+                  valor === "No" ||
+                  valor === "no" ||
+                  valor === "NO" ||
+                  valor === false ||
+                  valor === 0 ||
+                  valor === "0" ||
+                  valor === "f" ||
+                  valor === "false" ||
+                  valor === "FALSE"
+                ) {
+                  return "#721c24";
+                }
+                return "#383d41";
+              })()};
             ">
-              ${ent.funcionando ? "✅ Sí" : "❌ No"}
+              ${(() => {
+                const valor = ent.funcionando;
+                if (
+                  valor === "Si" ||
+                  valor === "si" ||
+                  valor === "SI" ||
+                  valor === "Sí" ||
+                  valor === "sí" ||
+                  valor === "SÍ" ||
+                  valor === true ||
+                  valor === 1 ||
+                  valor === "1" ||
+                  valor === "t" ||
+                  valor === "true" ||
+                  valor === "TRUE"
+                ) {
+                  return "✅ Sí";
+                } else if (
+                  valor === "No" ||
+                  valor === "no" ||
+                  valor === "NO" ||
+                  valor === false ||
+                  valor === 0 ||
+                  valor === "0" ||
+                  valor === "f" ||
+                  valor === "false" ||
+                  valor === "FALSE"
+                ) {
+                  return "❌ No";
+                }
+                return "❓ Sin información";
+              })()}
             </span>
           </p>
         </div>
@@ -429,7 +532,7 @@ function renderGaleria(galeria, entidadId) {
 function agregarEventListenersEdicion(entidades, token) {
   console.log("🎯 Agregando listeners");
 
-  // ✅ NUEVO: Editar Información General (dirección, estado técnico, funcionando)
+  // ✅ NUEVO: Editar Información General (dirección, estado técnico, funcionando, consejo popular, municipio, provincia)
   document.querySelectorAll(".btn-editar-info-general").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
@@ -448,6 +551,24 @@ function agregarEventListenersEdicion(entidades, token) {
           }" 
             placeholder="Ingrese la dirección" style="width: 90%; margin: 5px 0;">
           
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏘️ Consejo Popular:</label>
+          <input id="swal-consejo-p" class="swal2-input" value="${
+            entidad.consejo_p || ""
+          }" 
+            placeholder="Ingrese el consejo popular" style="width: 90%; margin: 5px 0;">
+          
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏙️ Municipio:</label>
+          <input id="swal-municipio" class="swal2-input" value="${
+            entidad.municipio || ""
+          }" 
+            placeholder="Ingrese el municipio" style="width: 90%; margin: 5px 0;">
+          
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🗺️ Provincia:</label>
+          <input id="swal-provincia" class="swal2-input" value="${
+            entidad.provincias || ""
+          }" 
+            placeholder="Ingrese la provincia" style="width: 90%; margin: 5px 0;">
+          
           <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏗️ Estado Técnico:</label>
           <select id="swal-estado-tecnico" class="swal2-input" style="width: 90%; margin: 5px 0;">
             <option value="">-- Seleccione --</option>
@@ -464,21 +585,50 @@ function agregarEventListenersEdicion(entidades, token) {
           
           <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">⚡ Funcionando:</label>
           <select id="swal-funcionando" class="swal2-input" style="width: 90%; margin: 5px 0;">
-            <option value="true" ${
-              entidad.funcionando === true ? "selected" : ""
-            }>✅ Sí</option>
-            <option value="false" ${
-              entidad.funcionando === false ? "selected" : ""
-            }>❌ No</option>
+            <option value="true" ${(() => {
+              const val = entidad.funcionando;
+              return val === "Si" ||
+                val === "si" ||
+                val === "SI" ||
+                val === "Sí" ||
+                val === "sí" ||
+                val === "SÍ" ||
+                val === true ||
+                val === 1 ||
+                val === "1" ||
+                val === "t" ||
+                val === "true" ||
+                val === "TRUE"
+                ? "selected"
+                : "";
+            })()}>✅ Sí</option>
+            <option value="false" ${(() => {
+              const val = entidad.funcionando;
+              return val === "No" ||
+                val === "no" ||
+                val === "NO" ||
+                val === false ||
+                val === 0 ||
+                val === "0" ||
+                val === "f" ||
+                val === "false" ||
+                val === "FALSE"
+                ? "selected"
+                : "";
+            })()}>❌ No</option>
           </select>
         `,
         showCancelButton: true,
         confirmButtonText: "💾 Guardar",
         cancelButtonText: "❌ Cancelar",
         confirmButtonColor: "#2196F3",
+        width: "600px",
         preConfirm: () => {
           return {
             direccion: document.getElementById("swal-direccion").value,
+            consejo_p: document.getElementById("swal-consejo-p").value,
+            municipio: document.getElementById("swal-municipio").value,
+            provincias: document.getElementById("swal-provincia").value,
             estado_técnico_edificación: document.getElementById(
               "swal-estado-tecnico"
             ).value,
