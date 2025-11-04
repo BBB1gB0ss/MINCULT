@@ -52,10 +52,16 @@ router.get("/instituciones", async (req, res) => {
     }
 
     // ✅ CONSULTA ACTUALIZADA: Ahora usa 'id' en lugar de 'tid'
+    // Usamos COALESCE para campos que puedan no existir
     const sqlQuery = `
         SELECT 
-            id, cod_id,
-            nombre_institucion, objeto_social_centros_cult, estado_técnico_edificación,
+            id,  
+            cod_id,
+            nombre_institucion, 
+            objeto_social_centros_cult, 
+            estado_técnico_edificación,
+            COALESCE(direccion, '') as direccion,
+            COALESCE(funcionando, 'No') as funcionando,
             estado_constructivo, identificacion, año_fundacion, fecha_fundacion, fecha,
             especialidad, especialización, graduados_históricos, nomenclador,
             cantidad_trabajadores, subordinacion, entidad_responsable, consejo,
@@ -101,7 +107,13 @@ router.get("/instituciones", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error("❌ Error en consulta:", err);
-    res.status(500).json({ message: "Error al obtener las instituciones." });
+    console.error("❌ Mensaje de error:", err.message);
+    console.error("❌ Stack:", err.stack);
+    res.status(500).json({
+      message: "Error al obtener las instituciones.",
+      error: err.message,
+      hint: "Verifica que las columnas 'direccion', 'estado_técnico_edificación' y 'funcionando' existan en la tabla",
+    });
   } finally {
     if (client) client.release();
   }
@@ -115,7 +127,13 @@ router.put("/instituciones/:id", async (req, res) => {
   console.log("📦 Datos recibidos:", req.body);
 
   const { id } = req.params;
-  const { descripcion, galeria } = req.body;
+  const {
+    descripcion,
+    galeria,
+    funcionando,
+    direccion,
+    estado_técnico_edificación,
+  } = req.body;
 
   let client;
   try {
@@ -139,6 +157,32 @@ router.put("/instituciones/:id", async (req, res) => {
       console.log("🖼️ Actualizando galería");
     }
 
+    if (funcionando !== undefined) {
+      updateFields.push(`funcionando = $${paramCounter}`);
+      values.push(funcionando);
+      paramCounter++;
+      console.log("⚡ Actualizando funcionando:", funcionando);
+    }
+
+    // ✅ NUEVO: Manejar campo direccion
+    if (direccion !== undefined) {
+      updateFields.push(`direccion = $${paramCounter}`);
+      values.push(direccion);
+      paramCounter++;
+      console.log("📍 Actualizando dirección:", direccion);
+    }
+
+    // ✅ NUEVO: Manejar campo estado_técnico_edificación
+    if (estado_técnico_edificación !== undefined) {
+      updateFields.push(`estado_técnico_edificación = $${paramCounter}`);
+      values.push(estado_técnico_edificación);
+      paramCounter++;
+      console.log(
+        "🏗️ Actualizando estado técnico:",
+        estado_técnico_edificación
+      );
+    }
+
     if (updateFields.length === 0) {
       console.log("⚠️ No hay campos para actualizar");
       return res.status(400).json({ message: "No hay campos para actualizar" });
@@ -150,7 +194,7 @@ router.put("/instituciones/:id", async (req, res) => {
       UPDATE cultura.entidades 
       SET ${updateFields.join(", ")}
       WHERE id = $${paramCounter}
-      RETURNING id, nombre_institucion, descripcion, galeria
+      RETURNING id, nombre_institucion, descripcion, galeria, funcionando
     `;
 
     console.log("📝 Query:", sqlQuery);

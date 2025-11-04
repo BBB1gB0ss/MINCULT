@@ -1,5 +1,5 @@
 console.log(
-  "✅ updateController.js cargado - VERSIÓN COMPLETA CON BÚSQUEDA Y ELIMINACIÓN"
+  "✅ updateController.js cargado - VERSIÓN CON TODOS LOS CAMPOS EDITABLES"
 );
 
 let entidadesCargadas = []; // Variable global para almacenar todas las entidades
@@ -157,7 +157,6 @@ function realizarBusqueda(termino, contenedor, token) {
   console.log("🔍 Buscando:", termino);
 
   if (!termino || termino.trim() === "") {
-    // Si no hay término, mostrar todas
     renderizarEntidades(entidadesCargadas, contenedor, token);
     return;
   }
@@ -165,11 +164,8 @@ function realizarBusqueda(termino, contenedor, token) {
   const terminoBusqueda = termino.toLowerCase().trim();
 
   const resultados = entidadesCargadas.filter((entidad) => {
-    // Buscar por ID (número exacto o contenido)
     const idMatch =
       entidad.id && entidad.id.toString().includes(terminoBusqueda);
-
-    // Buscar por nombre (contiene el término)
     const nombreMatch =
       entidad.nombre_institucion &&
       entidad.nombre_institucion.toLowerCase().includes(terminoBusqueda);
@@ -227,12 +223,11 @@ function renderizarEntidades(entidades, contenedor, token) {
     </div>
   `;
 
-  // Agregar event listeners
   agregarEventListenersEdicion(entidades, token);
 }
 
 // ==============================================
-// 🎨 RENDERIZAR ENTIDAD COMPLETA
+// 🎨 RENDERIZAR ENTIDAD COMPLETA CON NUEVOS CAMPOS
 // ==============================================
 function renderEntidadCompleta(ent) {
   return `
@@ -266,6 +261,50 @@ function renderEntidadCompleta(ent) {
         ${mostrarCampo("ID", ent.id, "🆔")}
         ${mostrarCampo("Latitud", ent.latitud, "🌐")}
         ${mostrarCampo("Longitud", ent.longitud, "🌐")}
+      </div>
+
+      <!-- ✅ CAMPOS EDITABLES: Dirección, Estado Técnico, Funcionando -->
+      <div style="margin-bottom: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border: 2px solid #2196F3;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h4 style="color: #2196F3; margin: 0;">📋 Información General</h4>
+          <button 
+            class="btn-editar-info-general" 
+            data-id="${ent.id}"
+            style="
+              background: #2196F3;
+              color: white;
+              border: none;
+              padding: 8px 20px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: bold;
+            "
+          >
+            ✏️ Editar
+          </button>
+        </div>
+        <div style="padding: 12px; background: white; border-radius: 5px;">
+          <p style="margin: 8px 0;"><strong>📍 Dirección:</strong> ${
+            ent.direccion || '<em style="color: #999;">Sin dirección</em>'
+          }</p>
+          <p style="margin: 8px 0;"><strong>🏗️ Estado Técnico:</strong> ${
+            ent.estado_técnico_edificación ||
+            '<em style="color: #999;">Sin información</em>'
+          }</p>
+          <p style="margin: 8px 0;">
+            <strong>⚡ Funcionando:</strong> 
+            <span style="
+              padding: 3px 10px; 
+              border-radius: 12px; 
+              font-size: 0.9rem;
+              font-weight: bold;
+              background: ${ent.funcionando ? "#d4edda" : "#f8d7da"};
+              color: ${ent.funcionando ? "#155724" : "#721c24"};
+            ">
+              ${ent.funcionando ? "✅ Sí" : "❌ No"}
+            </span>
+          </p>
+        </div>
       </div>
       
       <!-- DESCRIPCIÓN EDITABLE -->
@@ -376,8 +415,6 @@ function renderGaleria(galeria, entidadId) {
           ">
             🖼️
           </div>
-          <input type="checkbox" class="checkbox-imagen" data-entidad="${entidadId}" data-url="${url}" 
-            style="position: absolute; top: 5px; left: 5px; width: 20px; height: 20px; cursor: pointer; display: none;">
         </div>
       `
         )
@@ -391,6 +428,71 @@ function renderGaleria(galeria, entidadId) {
 // ==============================================
 function agregarEventListenersEdicion(entidades, token) {
   console.log("🎯 Agregando listeners");
+
+  // ✅ NUEVO: Editar Información General (dirección, estado técnico, funcionando)
+  document.querySelectorAll(".btn-editar-info-general").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const id = e.target.dataset.id;
+      const entidad = entidades.find((ent) => ent.id == id);
+
+      const { value: formValues } = await Swal.fire({
+        title: "Editar Información General",
+        html: `
+          <strong style="display: block; margin-bottom: 15px;">${
+            entidad.nombre_institucion
+          }</strong>
+          
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">📍 Dirección:</label>
+          <input id="swal-direccion" class="swal2-input" value="${
+            entidad.direccion || ""
+          }" 
+            placeholder="Ingrese la dirección" style="width: 90%; margin: 5px 0;">
+          
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏗️ Estado Técnico:</label>
+          <select id="swal-estado-tecnico" class="swal2-input" style="width: 90%; margin: 5px 0;">
+            <option value="">-- Seleccione --</option>
+            <option value="Bueno" ${
+              entidad.estado_técnico_edificación === "Bueno" ? "selected" : ""
+            }>Bueno</option>
+            <option value="Regular" ${
+              entidad.estado_técnico_edificación === "Regular" ? "selected" : ""
+            }>Regular</option>
+            <option value="Malo" ${
+              entidad.estado_técnico_edificación === "Malo" ? "selected" : ""
+            }>Malo</option>
+          </select>
+          
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">⚡ Funcionando:</label>
+          <select id="swal-funcionando" class="swal2-input" style="width: 90%; margin: 5px 0;">
+            <option value="true" ${
+              entidad.funcionando === true ? "selected" : ""
+            }>✅ Sí</option>
+            <option value="false" ${
+              entidad.funcionando === false ? "selected" : ""
+            }>❌ No</option>
+          </select>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "💾 Guardar",
+        cancelButtonText: "❌ Cancelar",
+        confirmButtonColor: "#2196F3",
+        preConfirm: () => {
+          return {
+            direccion: document.getElementById("swal-direccion").value,
+            estado_técnico_edificación: document.getElementById(
+              "swal-estado-tecnico"
+            ).value,
+            funcionando:
+              document.getElementById("swal-funcionando").value === "true",
+          };
+        },
+      });
+
+      if (formValues) {
+        await actualizarEntidad(id, formValues, token);
+      }
+    });
+  });
 
   // DESCRIPCIÓN
   document.querySelectorAll(".btn-editar-descripcion").forEach((btn) => {
@@ -466,7 +568,6 @@ async function eliminarImagenes(id, entidad, token) {
     return;
   }
 
-  // Crear HTML con checkboxes para seleccionar imágenes
   const imagenesHTML = galeriaActual
     .map(
       (url, index) => `
@@ -512,7 +613,6 @@ async function eliminarImagenes(id, entidad, token) {
   });
 
   if (confirmacion) {
-    // Crear nueva galería sin las imágenes seleccionadas
     const nuevaGaleria = galeriaActual.filter(
       (_, index) => !confirmacion.includes(index)
     );
@@ -631,4 +731,4 @@ async function actualizarEntidad(id, datos, token) {
   }
 }
 
-console.log("🎉 Inicializado con búsqueda y eliminación de imágenes");
+console.log("🎉 Inicializado con todos los campos editables");

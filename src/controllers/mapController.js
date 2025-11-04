@@ -58,18 +58,18 @@ function crearIconoConsejo(consejo) {
     "BNJM Municp-Sucursal": "📖",
     "BNJM Provincial": "📕",
     "CNAE Municipal": "🏫",
-    "CNAE Provincial": "🎭",
+    "CNAE Provincial": "🎓",
     CNAP: "🎨",
     "CNAP  Galerias Arte Provincial": "🖼️",
     Monumentos: "🏛️",
-    "Museos Nacionales y Provinciales": "🏯",
-    "Sitios Nacionales": "🏡",
+    "Museos Nacionales y Provinciales": "🏟",
+    "Sitios Nacionales": "⛩️",
     "Cine ICAIC": "🎬",
     "Sala de Videos ICAIC": "📹",
     ICM: "🎵",
     ICL: "📚",
-    ARTEX: "🎻",
-    EGREM: "💽",
+    ARTEX: "🎭",
+    EGREM: "🎤",
     CNEArt: "✨",
   };
 
@@ -106,10 +106,90 @@ function crearIconoConsejo(consejo) {
 }
 
 // ==============================================
-// 🖼️ FUNCIÓN PARA CREAR POPUP CON GALERÍA
+// 🖼️ FUNCIÓN PARA CREAR POPUP CON GALERÍA Y NUEVOS CAMPOS
 // ==============================================
 function crearPopupContenido(institucion) {
   console.log(`🖼️ Creando popup para: ${institucion.nombre_institucion}`);
+
+  // ✅ NUEVOS CAMPOS: Dirección, Estado Técnico, Funcionando
+  let informacionBasicaHTML = `
+    <div style="margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #277a9b;">
+      <strong style="color: #277a9b;">📋 Información</strong>
+      <div style="margin-top: 8px;">
+        ${
+          institucion.direccion
+            ? `
+          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+            <strong>📍 Dirección:</strong> ${institucion.direccion}
+          </p>
+        `
+            : ""
+        }
+        ${
+          institucion.estado_técnico_edificación
+            ? `
+          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+            <strong>🏗️ Estado Técnico:</strong> ${institucion.estado_técnico_edificación}
+          </p>
+        `
+            : ""
+        }
+        ${(() => {
+          // Normalizar el valor de funcionando - AHORA CON "Si" y "No"
+          let estaFuncionando = null;
+          const valor = institucion.funcionando;
+
+          if (
+            valor === "Si" ||
+            valor === "si" ||
+            valor === "SI" ||
+            valor === "Sí" ||
+            valor === "sí" ||
+            valor === "SÍ" ||
+            valor === true ||
+            valor === 1 ||
+            valor === "1" ||
+            valor === "t" ||
+            valor === "true" ||
+            valor === "TRUE"
+          ) {
+            estaFuncionando = true;
+          } else if (
+            valor === "No" ||
+            valor === "no" ||
+            valor === "NO" ||
+            valor === false ||
+            valor === 0 ||
+            valor === "0" ||
+            valor === "f" ||
+            valor === "false" ||
+            valor === "FALSE"
+          ) {
+            estaFuncionando = false;
+          }
+
+          if (estaFuncionando !== null) {
+            return `
+              <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+                <strong>⚡ Estado:</strong> 
+                <span style="
+                  padding: 2px 8px; 
+                  border-radius: 12px; 
+                  font-size: 0.85rem;
+                  font-weight: bold;
+                  background: ${estaFuncionando ? "#d4edda" : "#f8d7da"};
+                  color: ${estaFuncionando ? "#155724" : "#721c24"};
+                ">
+                  ${estaFuncionando ? "✅ Funcionando" : "❌ No Funcionando"}
+                </span>
+              </p>
+            `;
+          }
+          return "";
+        })()}
+      </div>
+    </div>
+  `;
 
   let galeriaHTML = "";
   if (institucion.galeria && institucion.galeria.length > 0) {
@@ -163,8 +243,8 @@ function crearPopupContenido(institucion) {
         ? institucion.descripcion.substring(0, 150) + "..."
         : institucion.descripcion;
     descripcionHTML = `
-      <div style="margin-top: 12px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #277a9b;">
-        <strong style="color: #277a9b;">📝 Descripción:</strong>
+      <div style="margin-top: 12px; padding: 10px; background: #fff3cd; border-radius: 5px; border-left: 3px solid #c72d18;">
+        <strong style="color: #c72d18;">📝 Descripción:</strong>
         <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #444; line-height: 1.4;">
           ${descripcionCorta}
         </p>
@@ -189,6 +269,7 @@ function crearPopupContenido(institucion) {
       ">
         ${institucion.consejo || "Sin consejo"}
       </div>
+      ${informacionBasicaHTML}
       ${descripcionHTML}
       ${galeriaHTML}
     </div>
@@ -306,7 +387,6 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
 
   try {
     let url = "http://localhost:3000/api/instituciones";
-    // 🔧 CODIFICAR CORRECTAMENTE cada filtro
     const queryParams = filtrosSeleccionados
       .map((tipo) => encodeURIComponent(tipo))
       .join(",");
@@ -331,13 +411,9 @@ async function cargarInstituciones(filtrosSeleccionados = []) {
           `📍 Agregando marcador: ${institucion.nombre_institucion} (${institucion.consejo})`
         );
 
-        // 🎨 CREAR ICONO PERSONALIZADO
         const iconoPersonalizado = crearIconoConsejo(institucion.consejo);
-
-        // 🖼️ CREAR POPUP CON GALERÍA Y DESCRIPCIÓN
         const popupContent = crearPopupContenido(institucion);
 
-        // CREAR MARCADOR CON EL ICONO
         const marcador = L.marker([institucion.latitud, institucion.longitud], {
           icon: iconoPersonalizado,
         }).bindPopup(popupContent, {
