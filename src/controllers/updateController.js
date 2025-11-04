@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const gruposConsejos = {
       CNCC: [
-        "CNCC Jovenes",
+        "CNCC  Jovenes",
         "CNCC Niños",
         "CNCC Adultos",
         "CNCC Adultos Mayor",
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       ],
       BNJM: ["BNJM", "BNJM Municp-Sucursal", "BNJM Provincial"],
       CNAE: ["CNAE Municipal", "CNAE Provincial"],
-      CNAP: ["CNAP", "CNAP Galerias Arte Provincial"],
+      CNAP: ["CNAP", "CNAP  Galerias Arte Provincial"],
       CNPC: [
         "Monumentos",
         "Museos Nacionales y Provinciales",
