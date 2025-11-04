@@ -13,7 +13,7 @@ h1{
 .sig-rojo { color: #c72d18; }
 .sig-azul { color: #277a9b; }
 body {
-    background-image: url('');
+    background-image: url('assets/cult.png');
     background-size: cover; /* Hace que la imagen cubra toda la pantalla */
     background-position: center; /* Centra la imagen */
     background-repeat: no-repeat; /* Evita que se repita */
