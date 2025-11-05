@@ -119,15 +119,6 @@ function crearPopupContenido(institucion) {
     <div style="margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #277a9b;">
       <strong style="color: #277a9b;">📋 Información</strong>
       <div style="margin-top: 8px;">
-        ${
-          institucion.direccion
-            ? `
-          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
-            <strong>📍 Dirección:</strong> ${institucion.direccion}
-          </p>
-        `
-            : ""
-        }
             ${
               institucion.provincias
                 ? `
@@ -156,6 +147,15 @@ function crearPopupContenido(institucion) {
         `
             : ""
         }
+            ${
+              institucion.direccion
+                ? `
+          <p style="margin: 4px 0; font-size: 0.9rem; color: #444;">
+            <strong>📍 Dirección:</strong> ${institucion.direccion}
+          </p>
+        `
+                : ""
+            }
         ${
           institucion.estado_técnico_edificación
             ? `

@@ -284,9 +284,6 @@ function renderEntidadCompleta(ent) {
           </button>
         </div>
         <div style="padding: 12px; background: white; border-radius: 5px;">
-          <p style="margin: 8px 0;"><strong>📍 Dirección:</strong> ${
-            ent.direccion || '<em style="color: #999;">Sin dirección</em>'
-          }</p>
           <p style="margin: 8px 0;"><strong>🗺️ Provincia:</strong> ${
             ent.provincias || '<em style="color: #999;">Sin información</em>'
           }</p>
@@ -296,6 +293,9 @@ function renderEntidadCompleta(ent) {
           <p style="margin: 8px 0;"><strong>🏘️ Consejo Popular:</strong> ${
             ent.consejo_p || '<em style="color: #999;">Sin información</em>'
           }</p>
+           <p style="margin: 8px 0;"><strong>📍 Dirección:</strong> ${
+             ent.direccion || '<em style="color: #999;">Sin dirección</em>'
+           }</p>
           <p style="margin: 8px 0;"><strong>🏗️ Estado Técnico:</strong> ${
             ent.estado_técnico_edificación ||
             '<em style="color: #999;">Sin información</em>'
@@ -545,29 +545,29 @@ function agregarEventListenersEdicion(entidades, token) {
             entidad.nombre_institucion
           }</strong>
           
-          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">📍 Dirección:</label>
-          <input id="swal-direccion" class="swal2-input" value="${
-            entidad.direccion || ""
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🗺️ Provincia:</label>
+          <input id="swal-provincia" class="swal2-input" value="${
+            entidad.provincias || ""
           }" 
-            placeholder="Ingrese la dirección" style="width: 90%; margin: 5px 0;">
+            placeholder="Ingrese la provincia" style="width: 90%; margin: 5px 0;">
           
+           <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏙️ Municipio:</label>
+          <input id="swal-municipio" class="swal2-input" value="${
+            entidad.municipio || ""
+          }" 
+            placeholder="Ingrese el municipio" style="width: 90%; margin: 5px 0;">
+
           <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏘️ Consejo Popular:</label>
           <input id="swal-consejo-p" class="swal2-input" value="${
             entidad.consejo_p || ""
           }" 
             placeholder="Ingrese el consejo popular" style="width: 90%; margin: 5px 0;">
           
-          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏙️ Municipio:</label>
-          <input id="swal-municipio" class="swal2-input" value="${
-            entidad.municipio || ""
+          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">📍 Dirección:</label>
+          <input id="swal-direccion" class="swal2-input" value="${
+            entidad.direccion || ""
           }" 
-            placeholder="Ingrese el municipio" style="width: 90%; margin: 5px 0;">
-          
-          <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🗺️ Provincia:</label>
-          <input id="swal-provincia" class="swal2-input" value="${
-            entidad.provincias || ""
-          }" 
-            placeholder="Ingrese la provincia" style="width: 90%; margin: 5px 0;">
+            placeholder="Ingrese la dirección" style="width: 90%; margin: 5px 0;">
           
           <label style="display: block; text-align: left; margin-top: 10px; font-weight: bold;">🏗️ Estado Técnico:</label>
           <select id="swal-estado-tecnico" class="swal2-input" style="width: 90%; margin: 5px 0;">
@@ -625,10 +625,10 @@ function agregarEventListenersEdicion(entidades, token) {
         width: "600px",
         preConfirm: () => {
           return {
-            direccion: document.getElementById("swal-direccion").value,
-            consejo_p: document.getElementById("swal-consejo-p").value,
-            municipio: document.getElementById("swal-municipio").value,
             provincias: document.getElementById("swal-provincia").value,
+            municipio: document.getElementById("swal-municipio").value,
+            consejo_p: document.getElementById("swal-consejo-p").value,
+            direccion: document.getElementById("swal-direccion").value,
             estado_técnico_edificación: document.getElementById(
               "swal-estado-tecnico"
             ).value,
