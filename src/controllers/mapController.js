@@ -70,7 +70,7 @@ function crearIconoConsejo(consejo) {
     "Cine ICAIC": "🎬",
     "Sala de Videos ICAIC": "📹",
     ICM: "🎵",
-    ICL: "📚",
+    ICL: "📔",
     ARTEX: "🎻",
     EGREM: "💽",
     CNEArt: "✨",
